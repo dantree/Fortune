@@ -6,6 +6,7 @@
   <meta name="description" content="생년월일과 MBTI로 보는 하이브리드 궁합. 30초 만에 궁합 % 확인.">
   <title>MBTI × 사주 오행 궁합 테스트 | 무료 궁합 점수</title>
   <script src="config.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9648839818105934" crossorigin="anonymous"></script>
   <style>
     :root {
       --bg: #f5f3ff;
@@ -41,18 +42,13 @@
 
     .ad-slot {
       min-height: 90px;
-      background: #eee;
       border-radius: var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      font-size: 12px;
       margin-bottom: 16px;
-      border: 1px dashed #ccc;
     }
 
     .ad-slot.hidden { display: none; min-height: 0; margin: 0; padding: 0; border: none; }
+
+    .ad-slot ins.adsbygoogle { display: block; min-height: 90px; }
 
     .header {
       text-align: center;
@@ -952,19 +948,10 @@
       mbtiEl.innerHTML = data.mbti ? badgeHtml(ohengFromMbti(data.mbti), 'MBTI ') : '';
     }
 
-    let adsScriptLoaded = false;
+    let adsScriptLoaded = true; // head에서 미리 로드
 
     function loadAdsScript() {
-      if (adsScriptLoaded || !CONFIG.adsense.enabled || !CONFIG.adsense.client) return Promise.resolve();
-      return new Promise(resolve => {
-        const s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + CONFIG.adsense.client;
-        s.crossOrigin = 'anonymous';
-        s.onload = () => { adsScriptLoaded = true; resolve(); };
-        s.onerror = resolve;
-        document.head.appendChild(s);
-      });
+      return Promise.resolve();
     }
 
     function mountAd(containerId, slotKey) {
@@ -975,7 +962,7 @@
       el.classList.remove('hidden');
       el.innerHTML = '<ins class="adsbygoogle" style="display:block" data-ad-client="' + cfg.client +
         '" data-ad-slot="' + cfg.slots[slotKey] + '" data-ad-format="auto" data-full-width-responsive="true"></ins>';
-      loadAdsScript().then(() => {
+      requestAnimationFrame(() => {
         try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
         el.dataset.adMounted = '1';
       });
@@ -1261,6 +1248,9 @@
       initMbtiGrid();
       initEvents();
       handleRoute();
+      if (CONFIG.adsense.enabled) {
+        mountAd('ad-top', 'top');
+      }
       notifyResize();
     }
 
