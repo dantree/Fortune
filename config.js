@@ -8,14 +8,14 @@ window.FORTUNE_CONFIG = {
   // 블로그스팟 주소 → 결과 화면 "더 깊은 해설" 링크
   blogUrl: 'https://kaltaelee.com',
 
-  // AdSense — 아직이면 enabled: false 그대로 두세요
+  // AdSense
   adsense: {
-    enabled: false,
-    client: 'ca-pub-XXXXXXXXXXXXXXXX', // AdSense → 계정 → pub-ID
+    enabled: true,
+    client: 'ca-pub-9648839818105934',
     slots: {
-      top: '',      // 입력 화면 광고 슬롯 ID
-      loading: '',  // 로딩 화면
-      result: ''    // 결과 화면
+      top: '8274441370',      // 사이드바 (입력 화면)
+      loading: '6831987875',  // 하단 (로딩 화면 — 체류·집중 구간)
+      result: '6831987875'    // 하단 (결과 화면 — 공유 버튼 위)
     }
   }
 };
