@@ -1,0 +1,303 @@
+<!--
+  ★ 블로그스팟 사용법 ★
+  1. 글쓰기 → 왼쪽 상단 ⋮ → HTML 보기
+  2. 아래 코드 전체 복사 → 붙여넣기
+  3. 다시 글쓰기 모드로 돌아와서 위·아래에 설명 글 추가
+  ※ script가 막히면: 레이아웃 → HTML/JavaScript 가젯에 넣기
+-->
+
+<div id="ft-app">
+<style>
+#ft-app{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;max-width:480px;margin:24px auto;padding:16px;background:#f5f3ff;border-radius:16px;color:#1a1a2e;line-height:1.5}
+#ft-app *{box-sizing:border-box;margin:0;padding:0}
+#ft-app .ft-title{text-align:center;font-size:22px;font-weight:800;color:#6b4eff;margin-bottom:6px}
+#ft-app .ft-sub{text-align:center;font-size:13px;color:#6b7280;margin-bottom:20px}
+#ft-app .ft-card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 4px 20px rgba(107,78,255,.1)}
+#ft-app .ft-card h3{font-size:14px;margin-bottom:12px}
+#ft-app label{display:block;font-size:12px;color:#6b7280;margin-bottom:5px}
+#ft-app input,#ft-app .ft-sel{width:100%;padding:11px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;margin-bottom:10px;background:#fafafa}
+#ft-app .ft-sel{cursor:pointer;text-align:left;color:#9ca3af}
+#ft-app .ft-sel.ok{color:#1a1a2e}
+#ft-app .ft-badge{display:inline-block;padding:3px 9px;border-radius:14px;font-size:11px;color:#fff;margin:3px 3px 0 0;font-weight:600}
+#ft-app .wood{background:#4caf50}.fire{background:#f44336}.earth{background:#e6a800;color:#333}.metal{background:#78909c}.water{background:#2196f3}
+#ft-app .ft-btn{width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#6b4eff,#9333ea);color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
+#ft-app .ft-err{color:#f44336;font-size:11px;display:none;margin:-6px 0 8px}
+#ft-app .ft-field.err .ft-err{display:block}
+#ft-app .ft-field.err input,#ft-app .ft-field.err .ft-sel{border-color:#f44336}
+#ft-app .ft-screen{display:none}
+#ft-app .ft-screen.on{display:block}
+#ft-app .ft-score{text-align:center;font-size:68px;font-weight:900;color:#f44336;line-height:1}
+#ft-app .ft-grade{text-align:center;font-size:18px;font-weight:700;margin:8px 0 16px}
+#ft-app .ft-summary{text-align:center;font-weight:700;padding:14px;background:#faf5ff;border-radius:12px;margin-bottom:14px;font-size:15px;line-height:1.6}
+#ft-app .ft-bar{margin-bottom:10px}
+#ft-app .ft-bar-h{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+#ft-app .ft-bar-t{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}
+#ft-app .ft-bar-f{height:100%;background:linear-gradient(90deg,#6b4eff,#9333ea);border-radius:4px}
+#ft-app .ft-list{list-style:none;font-size:13px}
+#ft-app .ft-list li{padding:6px 0 6px 20px;position:relative;border-bottom:1px solid #f3f4f6}
+#ft-app .ft-list li:last-child{border:none}
+#ft-app .ft-list li::before{position:absolute;left:0}
+#ft-app .ft-good li::before{content:'✓';color:#4caf50;font-weight:700}
+#ft-app .ft-warn li::before{content:'!';color:#ff9800;font-weight:700}
+#ft-app .ft-tip{background:#ede9fe;padding:14px;border-radius:12px;font-size:13px;line-height:1.7;margin-top:10px}
+#ft-app .ft-dim{font-size:13px;padding:8px 0;border-bottom:1px solid #f3f4f6}
+#ft-app .ft-dim:last-child{border:none}
+#ft-app .ft-dim b{color:#6b4eff}
+#ft-app .ft-pair{display:flex;align-items:center;justify-content:space-between;text-align:center;gap:8px}
+#ft-app .ft-pair .mbti{font-size:17px;font-weight:800}
+#ft-app .ft-pair .dt{font-size:10px;color:#6b7280;margin-top:4px}
+#ft-app .ft-heart{font-size:26px}
+#ft-app .ft-load{text-align:center;padding:30px 0}
+#ft-app .ft-spin{width:60px;height:60px;border:4px solid #e5e7eb;border-top-color:#6b4eff;border-radius:50%;animation:ftspin .8s linear infinite;margin:0 auto 16px}
+@keyframes ftspin{to{transform:rotate(360deg)}}
+#ft-app .ft-msg{font-weight:600;margin-bottom:12px}
+#ft-app .ft-retry{display:block;width:100%;text-align:center;padding:12px;background:none;border:none;color:#6b7280;font-size:14px;cursor:pointer;margin-top:8px}
+#ft-app .ft-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:flex-end;justify-content:center}
+#ft-app .ft-modal.on{display:flex}
+#ft-app .ft-modal-in{background:#fff;width:100%;max-width:480px;border-radius:18px 18px 0 0;padding:18px;max-height:75vh;overflow-y:auto}
+#ft-app .ft-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+#ft-app .ft-grid button{padding:11px 2px;border:1.5px solid #e5e7eb;border-radius:9px;background:#fff;font-size:12px;font-weight:700;cursor:pointer}
+#ft-app .ft-grid button:active{background:#6b4eff;color:#fff;border-color:#6b4eff}
+#ft-app .ft-note{font-size:11px;color:#9ca3af;text-align:center;margin-top:12px}
+</style>
+
+<div id="ft-s0" class="ft-screen on">
+  <div class="ft-title">✨ MBTI × 오행 궁합</div>
+  <p class="ft-sub">생년월일 + MBTI · 30초 테스트<br><small>(일간 오행 기준 · 시간 불필요)</small></p>
+
+  <div class="ft-card">
+    <h3>👤 나</h3>
+    <div class="ft-field" id="ffa-bd"><label>생년월일</label><input type="date" id="ffa-date" min="1900-01-01"><div class="ft-err">생년월일을 입력해 주세요</div></div>
+    <div id="ffa-badges"></div>
+    <div class="ft-field" id="ffa-mb"><label>MBTI</label><button type="button" class="ft-sel" id="ffa-mbti" data-p="A">MBTI 선택</button><div class="ft-err">MBTI를 선택해 주세요</div></div>
+    <div id="ffa-mbadges"></div>
+  </div>
+
+  <div class="ft-card">
+    <h3>💕 상대</h3>
+    <div class="ft-field" id="ffb-bd"><label>생년월일</label><input type="date" id="ffb-date" min="1900-01-01"><div class="ft-err">생년월일을 입력해 주세요</div></div>
+    <div id="ffb-badges"></div>
+    <div class="ft-field" id="ffb-mb"><label>MBTI</label><button type="button" class="ft-sel" id="ffb-mbti" data-p="B">MBTI 선택</button><div class="ft-err">MBTI를 선택해 주세요</div></div>
+    <div id="ffb-mbadges"></div>
+  </div>
+
+  <button type="button" class="ft-btn" id="ft-go">🔮 궁합 결과 보기</button>
+  <p class="ft-note">입력 정보는 저장·전송되지 않습니다</p>
+</div>
+
+<div id="ft-s1" class="ft-screen">
+  <div class="ft-load">
+    <div class="ft-spin"></div>
+    <div class="ft-msg" id="ft-lmsg">우주의 기운을 모으는 중...</div>
+  </div>
+</div>
+
+<div id="ft-s2" class="ft-screen">
+  <div class="ft-score" id="ft-rscore">0%</div>
+  <div class="ft-grade" id="ft-rgrade"></div>
+  <div class="ft-card ft-pair" id="ft-rpair"></div>
+  <div class="ft-summary" id="ft-rsum"></div>
+
+  <div class="ft-card">
+    <h3>📊 항목별 궁합</h3>
+    <div id="ft-bars"></div>
+  </div>
+
+  <div class="ft-card">
+    <h3>🌿 오행 · 일간 분석</h3>
+    <div id="ft-oheng" style="font-size:13px;line-height:1.75"></div>
+  </div>
+
+  <div class="ft-card">
+    <h3>🧠 MBTI 4가지 축</h3>
+    <div id="ft-dims"></div>
+  </div>
+
+  <div class="ft-card">
+    <h3>💪 잘 맞는 점</h3>
+    <ul class="ft-list ft-good" id="ft-good"></ul>
+  </div>
+
+  <div class="ft-card">
+    <h3>⚠️ 주의할 점</h3>
+    <ul class="ft-list ft-warn" id="ft-warn"></ul>
+  </div>
+
+  <div class="ft-tip" id="ft-tip"></div>
+
+  <button type="button" class="ft-retry" id="ft-retry">↺ 다시 테스트하기</button>
+</div>
+
+<div class="ft-modal" id="ft-modal">
+  <div class="ft-modal-in">
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px"><b>MBTI 선택</b><button type="button" id="ft-mx" style="border:none;background:none;font-size:20px;cursor:pointer">✕</button></div>
+    <div class="ft-grid" id="ft-grid"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+var TYPES=['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
+var GRP={INTJ:'nt',INTP:'nt',ENTJ:'nt',ENTP:'nt',INFJ:'nf',INFP:'nf',ENFJ:'nf',ENFP:'nf',ISTJ:'sj',ISFJ:'sj',ESTJ:'sj',ESFJ:'sj',ISTP:'sp',ISFP:'sp',ESTP:'sp',ESFP:'sp'};
+var M2O={nt:'metal',nf:'fire',sj:'earth',sp:'water'};
+var STEMS=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+var BR=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+var S2O=['wood','wood','fire','fire','earth','earth','metal','metal','water','water'];
+var OH={wood:{ko:'목',hj:'木',ic:'🌳'},fire:{ko:'화',hj:'火',ic:'🔥'},earth:{ko:'토',hj:'土',ic:'🌍'},metal:{ko:'금',hj:'金',ic:'⚙️'},water:{ko:'수',hj:'水',ic:'💧'}};
+var REL={wood:{wood:10,fire:25,earth:-10,metal:-15,water:20},fire:{wood:20,fire:10,earth:25,metal:-10,water:-15},earth:{wood:-10,fire:20,earth:10,metal:25,water:-10},metal:{wood:-15,fire:-10,earth:20,metal:10,water:25},water:{wood:25,fire:-15,earth:-10,metal:20,water:10}};
+var GEN={wood:'fire',fire:'earth',earth:'metal',metal:'water',water:'wood'};
+var GEUK={wood:'earth',fire:'metal',earth:'water',metal:'wood',water:'fire'};
+var DAYDESC={wood:'성장·시작의 기운. 새로운 것을 시작하고 키우는 힘이 강합니다.',fire:'열정·표현의 기운. 에너지가 넘치고 주변을 밝게 만듭니다.',earth:'안정·중재의 기운. 현실적이고 믿음직한 존재감이 있습니다.',metal:'결단·원칙의 기운. 명확한 기준과 정리 정돈에 능합니다.',water:'지혜·유연의 기운. 상황에 맞게 흐르고 깊이 생각합니다.'};
+var MBTI_BASE={'INTJ':{'ENFP':92,'ENTP':88,'INFP':85},'ENFP':{'INTJ':92,'INFJ':89},'INFJ':{'ENTP':91,'ENFP':89},'ENTP':{'INFJ':91,'INTJ':88},'INFP':{'ENFJ':90,'ENTJ':88},'ENFJ':{'INFP':90,'INTP':90},'INTP':{'ENFJ':90,'ENTJ':86},'ENTJ':{'INTP':90,'INFP':88},'ISFJ':{'ESTP':84,'ESFP':80},'ESTP':{'ISFJ':84,'ISTJ':78},'ESFJ':{'ISFP':86,'ISTP':82},'ISFP':{'ESTJ':85,'ESFJ':86},'ISTJ':{'ESFP':82,'ESTP':78},'ESFP':{'ISTJ':82,'ISFJ':80},'ESTJ':{'ISFP':85,'ISTP':80},'ISTP':{'ESFJ':84,'ESTJ':80}};
+var st={A:{bd:'',mb:''},B:{bd:'',mb:''},mp:null};
+
+function jdn(y,m,d){var a=Math.floor((14-m)/12),y2=y+4800-a,m2=m+12*a-3;return d+Math.floor((153*m2+2)/5)+365*y2+Math.floor(y2/4)-Math.floor(y2/100)+Math.floor(y2/400)-32045;}
+function dayIdx(s){var p=s.split('-').map(Number);return((jdn(p[0],p[1],p[2])+49)%60+60)%60;}
+function dayG(s){var i=dayIdx(s);return STEMS[i%10]+BR[i%12];}
+function oDay(s){return OH[S2O[dayIdx(s)%10]];}
+function oMb(m){return OH[M2O[GRP[m]]];}
+function badgeT(t){var o=OH[t];return'<span class="ft-badge '+t+'">'+o.ic+' '+o.ko+'('+o.hj+')</span>';}
+function mScore(a,b){if(a===b)return 75;return(MBTI_BASE[a]&&MBTI_BASE[a][b])||(MBTI_BASE[b]&&MBTI_BASE[b][a])||62+((a.charCodeAt(0)+b.charCodeAt(0))%18);}
+function rel(t1,t2){var s=REL[t1][t2];return s>=20?'상생':s>=0?'비견':'상극';}
+function oScore(a,b){
+  var types=[S2O[dayIdx(a.bd)%10],M2O[GRP[a.mb]],S2O[dayIdx(b.bd)%10],M2O[GRP[b.mb]]];
+  var pairs=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]],sc=0;
+  pairs.forEach(function(p){sc+=REL[types[p[0]]][types[p[1]]];});
+  return Math.round(Math.min(100,Math.max(35,65+sc/pairs.length)));
+}
+
+function analyze(a,b){
+  var oD=oDay(a.bd),oB=oDay(b.bd),oAm=oMb(a.mb),oBm=oMb(b.mb);
+  var os=oScore(a,b), ms=mScore(a.mb,b.mb);
+  var total=Math.round(os*0.6+ms*0.4);
+  var grade=total>=85?{l:'찰떡 궁합',e:'🔥'}:total>=70?{l:'좋은 궁합',e:'💚'}:total>=55?{l:'보통 궁합',e:'💛'}:total>=40?{l:'노력형 궁합',e:'💪'}:{l:'주의 필요',e:'⚠️'};
+  var r=rel(S2O[dayIdx(a.bd)%10],S2O[dayIdx(b.bd)%10]);
+
+  var cats={
+    love:Math.min(99,Math.round(os*0.55+ms*0.45+(r==='상생'?6:0))),
+    talk:Math.min(99,58+[0,1,2,3].reduce(function(s,i){return s+(a.mb[i]===b.mb[i]?10:6);},0)),
+    calm:Math.min(99,Math.round(72-(r==='상극'?18:8)+(a.mb[2]==='T'&&b.mb[2]==='T'?8:0)+(a.mb[2]==='F'&&b.mb[2]==='F'?6:0))),
+    long:Math.min(99,Math.round((os+ms)/2+(a.mb[3]==='J'&&b.mb[3]==='J'?5:a.mb[3]==='P'&&b.mb[3]==='P'?2:3)))
+  };
+
+  var dims=[[0,'외향/내향'],['1','직관/감각'],['2','사고/감정'],['3','계획/즉흥']].map(function(x){
+    var i=+x[0],c1=a.mb[i],c2=b.mb[i],same=c1===c2;
+    var nm={E:'외향',I:'내향',N:'직관',S:'감각',T:'이성',F:'감성',J:'계획',P:'유연'};
+    var tx=same?'둘 다 '+nm[c1]+'형 — 에너지·리듬이 비슷해 편안합니다.':''+nm[c1]+' × '+nm[c2]+' — 서로 다른 방식이지만 보완될 수 있습니다.';
+    if(i===2&&!same)tx+=' 감정 표현 방식 차이에 한 번 더 확인하세요.';
+    if(i===2&&same&&c1==='T')tx='둘 다 이성형 — 논리·팩트로 대화가 잘 통합니다.';
+    if(i===2&&same&&c1==='F')tx='둘 다 감성형 — 공감·배려가 자연스럽게 오갑니다.';
+    return{lb:x[1],tx:tx,same:same};
+  });
+
+  var tA=S2O[dayIdx(a.bd)%10],tB=S2O[dayIdx(b.bd)%10];
+  var oLines=[
+    '【나】 일주 '+dayG(a.bd)+' → 일간 '+oD.ko+'('+oD.hj+') '+DAYDESC[tA],
+    '【상대】 일주 '+dayG(b.bd)+' → 일간 '+oB.ko+'('+oB.hj+') '+DAYDESC[tB],
+    '일간 관계: '+oD.ko+'('+oD.hj+') × '+oB.ko+'('+oB.hj+') = <b>'+r+'</b> (오행 점수 '+os+'점)',
+    r==='상생'?oD.ko+'(生)'+oB.ko+' — 서로의 기운을 키워주는 조합입니다.':r==='상극'?oD.ko+'(剋)'+oB.ko+' — 끌림과 긴장이 공존합니다. 다르면서도 배우는 관계.':'비슷한 기운 — 공감·편안함이 큰 관계.'
+  ];
+  if(GEN[tA]===tB)oLines.push('✦ 나(일간)의 '+oD.ko+'이 상대(일간) '+oB.ko+'를 생해줍니다 → 상대에게 힘이 됩니다.');
+  if(GEN[tB]===tA)oLines.push('✦ 상대(일간)의 '+oB.ko+'이 나(일간) '+oD.ko+'를 생해줍니다 → 나에게 힘이 됩니다.');
+  var ta=M2O[GRP[a.mb]],tb=M2O[GRP[b.mb]];
+  if(GEN[ta]===tb)oLines.push('✦ MBTI: '+a.mb+'('+OH[ta].ko+') → '+b.mb+'('+OH[tb].ko+') 상생 보완');
+  if(GEN[tb]===ta)oLines.push('✦ MBTI: '+b.mb+'('+OH[tb].ko+') → '+a.mb+'('+OH[ta].ko+') 상생 보완');
+
+  var good=[],warn=[];
+  if(r==='상생')good.push('사주 오행이 상생(相生) — 자연스럽게 서로를 도와주는 기운');
+  if(ms>=80)good.push(a.mb+' × '+b.mb+' — MBTI 궁합 '+ms+'점, 성향 시너지가 큼');
+  if(a.mb[0]===b.mb[0])good.push('에너지 방향('+ (a.mb[0]==='E'?'외향':'내향') +')이 같아 함께 있을 때 편함');
+  if(a.mb[2]===b.mb[2])good.push((a.mb[2]==='T'?'이성':'감성')+' 중심이 같아 갈등 후 화해가 빠름');
+  if(cats.love>=80)good.push('연애·호감 지수 '+cats.love+'% — 서로 끌리는 에너지가 강함');
+  if(!good.length)good.push('서로 다른 점이 많아 — 새로운 시각을 주고받을 수 있음');
+
+  if(r==='상극')warn.push('오행 상극(相剋) — 의견·가치관 충돌 시 양보가 필요');
+  if(a.mb[2]!==b.mb[2])warn.push('T(이성) vs F(감성) 차이 — "말투" 하나로 상처받을 수 있음');
+  if(a.mb[3]!==b.mb[3])warn.push('J(계획) vs P(즉흥) 차이 — 약속·일정에서 마찰 가능');
+  if(a.mb[1]!==b.mb[1])warn.push('N(직관) vs S(감각) 차이 — 대화 주제·관심사가 다를 수 있음');
+  if(!warn.length)warn.push('특별한 주의점은 적음 — 다만 궁합은 참고용, 소통이 가장 중요');
+
+  var tips=[
+    r==='상극'?'갈등 시 "누가 맞다"보다 "우리가 어떻게 맞출까"로 접근하세요.':null,
+    a.mb[2]!==b.mb[2]?'상대가 T면 팩트·해결책을, F면 공감·감정을 먼저 건네세요.':null,
+    a.mb[3]!==b.mb[3]?'약속·여행 계획은 한쪽이 리드, 한쪽이 유연하게 맞추는 역할을 나눠보세요.':null,
+    '오행 '+oD.ko+' × '+oB.ko+' 조합 — '+oD.ic+' '+oB.ic+' 기운을 기념일·선물 테마로 활용하면 재미있습니다.'
+  ].filter(Boolean);
+
+  return{
+    total:total,grade:grade,oD:oD,oB:oB,os:os,ms:ms,r:r,cats:cats,dims:dims,
+    oLines:oLines,good:good,warn:warn,tip:tips[0]||tips[tips.length-1],
+    sum:total>=85?oD.ko+'('+oD.hj+') × '+oB.ko+'('+oB.hj+') '+r+'! '+grade.e+' '+grade.l:a.mb+' × '+b.mb+' — '+grade.l
+  };
+}
+
+function show(n){['s0','s1','s2'].forEach(function(x){document.getElementById('ft-'+x).classList.toggle('on',x===n);});}
+
+function renderResult(R,a,b){
+  document.getElementById('ft-rscore').textContent=R.total+'%';
+  document.getElementById('ft-rgrade').textContent=R.grade.e+' '+R.grade.l;
+  document.getElementById('ft-rsum').textContent=R.sum;
+  var f=function(d){return d.replace(/-/g,'.');};
+  document.getElementById('ft-rpair').innerHTML=
+    '<div><div class="mbti">'+a.mb+'</div>'+badgeT(S2O[dayIdx(a.bd)%10])+'<div class="dt">'+f(a.bd)+' · '+dayG(a.bd)+'</div></div>'+
+    '<div class="ft-heart">♥</div>'+
+    '<div><div class="mbti">'+b.mb+'</div>'+badgeT(S2O[dayIdx(b.bd)%10])+'<div class="dt">'+f(b.bd)+' · '+dayG(b.bd)+'</div></div>';
+
+  var barNames={love:'💕 연애·호감',talk:'💬 대화·소통',calm:'🕊️ 갈등 조율',long:'🌱 장기 관계'};
+  document.getElementById('ft-bars').innerHTML=Object.keys(R.cats).map(function(k){
+    return'<div class="ft-bar"><div class="ft-bar-h"><span>'+barNames[k]+'</span><span>'+R.cats[k]+'%</span></div><div class="ft-bar-t"><div class="ft-bar-f" style="width:'+R.cats[k]+'%"></div></div></div>';
+  }).join('');
+
+  document.getElementById('ft-oheng').innerHTML=R.oLines.map(function(l){return'<p style="margin-bottom:8px">'+l+'</p>';}).join('');
+  document.getElementById('ft-dims').innerHTML=R.dims.map(function(d){return'<div class="ft-dim"><b>'+d.lb+'</b> · '+d.tx+'</div>';}).join('');
+  document.getElementById('ft-good').innerHTML=R.good.map(function(g){return'<li>'+g+'</li>';}).join('');
+  document.getElementById('ft-warn').innerHTML=R.warn.map(function(w){return'<li>'+w+'</li>';}).join('');
+  document.getElementById('ft-tip').innerHTML='💡 <b>관계 팁</b><br>'+R.tip;
+}
+
+function updBadges(side){
+  var s=side==='A'?st.A:st.B;
+  var el=side==='A'?'ffa':'ffb';
+  document.getElementById(el+'-badges').innerHTML=s.bd?badgeT(S2O[dayIdx(s.bd)%10].replace('일간 ','')):'';
+  if(s.bd){var o=oDay(s.bd);document.getElementById(el+'-badges').innerHTML='<span class="ft-badge '+S2O[dayIdx(s.bd)%10]+'">'+o.ic+' 일간 '+o.ko+'('+o.hj+')</span>';}
+  if(s.mb){var t=M2O[GRP[s.mb]],o=OH[t];document.getElementById(el+'-mbadges').innerHTML='<span class="ft-badge '+t+'">'+o.ic+' MBTI '+o.ko+'('+o.hj+')</span>';}
+}
+
+document.getElementById('ffa-date').max=document.getElementById('ffb-date').max=new Date().toISOString().slice(0,10);
+document.getElementById('ffa-date').onchange=function(){st.A.bd=this.value;updBadges('A');};
+document.getElementById('ffb-date').onchange=function(){st.B.bd=this.value;updBadges('B');};
+
+document.getElementById('ft-grid').innerHTML=TYPES.map(function(t){return'<button type="button" data-m="'+t+'">'+t+'</button>';}).join('');
+document.getElementById('ft-grid').onclick=function(e){var b=e.target.closest('[data-m]');if(!b||!st.mp)return;
+  st[st.mp].mb=b.dataset.m;var btn=document.getElementById(st.mp==='A'?'ffa-mbti':'ffb-mbti');
+  btn.textContent=b.dataset.m;btn.classList.add('ok');updBadges(st.mp);document.getElementById('ft-modal').classList.remove('on');};
+document.getElementById('ffa-mbti').onclick=function(){st.mp='A';document.getElementById('ft-modal').classList.add('on');};
+document.getElementById('ffb-mbti').onclick=function(){st.mp='B';document.getElementById('ft-modal').classList.add('on');};
+document.getElementById('ft-mx').onclick=function(){document.getElementById('ft-modal').classList.remove('on');};
+
+document.getElementById('ft-go').onclick=function(){
+  st.A.bd=document.getElementById('ffa-date').value;
+  st.B.bd=document.getElementById('ffb-date').value;
+  var ok=true,today=new Date().toISOString().slice(0,10);
+  [['ffa-bd',st.A.bd],['ffb-bd',st.B.bd],['ffa-mb',st.A.mb],['ffb-mb',st.B.mb]].forEach(function(x){
+    document.getElementById(x[0]).classList.toggle('err',!x[1]||(x[0].indexOf('bd')>-1&&x[1]>today));
+    if(!x[1])ok=false;
+  });
+  if(!ok)return;
+  show('s1');
+  var msgs=['우주의 기운을 모으는 중...','오행 균형 분석 중...','MBTI 조화 계산 중...'];
+  var mi=0;document.getElementById('ft-lmsg').textContent=msgs[0];
+  var iv=setInterval(function(){mi++;if(mi<3)document.getElementById('ft-lmsg').textContent=msgs[mi];},800);
+  setTimeout(function(){
+    clearInterval(iv);
+    var R=analyze(st.A,st.B);
+    renderResult(R,st.A,st.B);
+    show('s2');
+    document.getElementById('ft-app').scrollIntoView({behavior:'smooth'});
+  },2500);
+};
+
+document.getElementById('ft-retry').onclick=function(){show('s0');};
+})();
+</script>
+</div>
