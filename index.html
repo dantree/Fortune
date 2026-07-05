@@ -347,6 +347,55 @@
       margin: 16px 0;
     }
 
+    .share-row-full { grid-template-columns: 1fr; }
+
+    .btn-share-insta {
+      background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      color: #fff;
+      border: none;
+    }
+
+    .btn-share-threads {
+      background: #000;
+      color: #fff;
+      border: none;
+    }
+
+    .keyword-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .keyword-tag {
+      padding: 6px 12px;
+      background: #ede9fe;
+      color: #6b4eff;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .chemistry-box {
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.75;
+      padding: 16px;
+      background: linear-gradient(135deg, #fff, #faf5ff);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      border: 1px solid #e9e0ff;
+    }
+
+    .verdict-box {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+      padding: 4px 0 12px;
+    }
+
     .btn-secondary {
       padding: 14px;
       border: 1.5px solid #e5e7eb;
@@ -579,8 +628,13 @@
 
       <div class="card pair-card" id="result-pair"></div>
       <div class="summary" id="result-summary"></div>
+      <div class="keyword-tags" id="result-keywords"></div>
+      <div class="chemistry-box" id="result-chemistry"></div>
 
       <div class="card detail-section">
+        <h3>📝 종합 총평</h3>
+        <div class="verdict-box" id="result-verdict"></div>
+      </div>
         <h3>📊 항목별 궁합</h3>
         <div id="result-bars"></div>
       </div>
@@ -610,8 +664,16 @@
       <div id="ad-result" class="ad-slot hidden"></div>
 
       <div class="share-row">
-        <button type="button" class="btn-secondary" id="btn-copy">📋 링크 복사</button>
-        <button type="button" class="btn-secondary" id="btn-save">📸 결과 저장</button>
+        <button type="button" class="btn-secondary" id="btn-copy-text">📝 결과 전체 복사</button>
+        <button type="button" class="btn-secondary" id="btn-copy-link">🔗 테스트 링크</button>
+        <button type="button" class="btn-secondary" id="btn-save">📸 이미지 저장</button>
+        <button type="button" class="btn-secondary" id="btn-share-native">📤 공유하기</button>
+      </div>
+      <div class="share-row share-row-full">
+        <button type="button" class="btn-secondary btn-share-insta" id="btn-share-insta">📷 인스타용 저장+복사</button>
+      </div>
+      <div class="share-row share-row-full">
+        <button type="button" class="btn-secondary btn-share-threads" id="btn-share-threads">🧵 스레드에 올리기</button>
       </div>
 
       <a class="blog-link" id="blog-link" href="#" target="_blank" rel="noopener">
@@ -715,6 +777,26 @@
       water: '지혜·유연의 기운. 상황에 맞게 흐르고 깊이 생각합니다.'
     };
     const GENERATES = { wood: 'fire', fire: 'earth', earth: 'metal', metal: 'water', water: 'wood' };
+
+    const REL_DETAIL = {
+      'wood-fire': '목(木)이 화(火)를 생(生)합니다. 아이디어와 성장 에너지가 열정으로 이어지는 활력 넘치는 조합.',
+      'fire-earth': '화(火)가 토(土)를 생합니다. 열정이 현실적 성과로 안착하는, 실행력 있는 조합.',
+      'earth-metal': '토(土)가 금(金)을 생합니다. 안정 위에 원칙과 결단이 세워지는 신뢰형 조합.',
+      'metal-water': '금(金)이 수(水)를 생합니다. 명확한 기준이 지혜와 유연함으로 흐르는 지적인 조합.',
+      'water-wood': '수(水)가 목(木)을 생합니다. 깊은 이해가 성장과 새 출발로 이어지는 발전형 조합.',
+      'wood-earth': '목(木)과 토(土)는 상극(相剋). 성장 vs 안정 — 속도 차이를 맞추면 균형이 생깁니다.',
+      'fire-metal': '화(火)와 금(金)은 상극. 열정 vs 원칙 — 서로를 단련시키는 긴장감 있는 조합.',
+      'earth-water': '토(土)와 수(水)는 상극. 현실 vs 감성 — 서로 다른 시각이 오히려 깊이를 더합니다.',
+      'metal-wood': '금(金)과 목(木)은 상극. 결단 vs 시작 — 방향만 맞추면 강한 추진력이 됩니다.',
+      'water-fire': '수(水)와 화(火)는 상극. 냉정 vs 열정 — 극과 극이 만나 강한 끌림을 만듭니다.'
+    };
+
+    const MBTI_ARCHETYPES = {
+      INTJ: '전략가', INTP: '논리술사', ENTJ: '통솔자', ENTP: '변론가',
+      INFJ: '옹호자', INFP: '중재자', ENFJ: '선도자', ENFP: '활동가',
+      ISTJ: '현실주의자', ISFJ: '수호자', ESTJ: '경영자', ESFJ: '집정관',
+      ISTP: '장인', ISFP: '모험가', ESTP: '사업가', ESFP: '연예인'
+    };
 
     const state = {
       personA: { birthDate: '', mbti: '' },
@@ -823,10 +905,190 @@
 
     const MBTI_SCORE = buildMbtiMatrix();
 
+    function getRelDetail(tA, tB) {
+      const key = tA + '-' + tB;
+      const rev = tB + '-' + tA;
+      if (REL_DETAIL[key]) return REL_DETAIL[key];
+      if (REL_DETAIL[rev]) return REL_DETAIL[rev];
+      if (tA === tB) return `같은 ${OHENG[tA].labelKo}(${OHENG[tA].hanja}) 기운 — 말 없이도 통하는 편안함.`;
+      return '서로 다른 오행이 만나 새로운 균형을 만드는 조합.';
+    }
+
+    function buildKeywords(a, b, rel, grade) {
+      const tags = [grade.label, rel + '궁합', a.mbti, b.mbti,
+        a.ohengDay.labelKo + '×' + b.ohengDay.labelKo,
+        MBTI_ARCHETYPES[a.mbti] + '×' + MBTI_ARCHETYPES[b.mbti]];
+      if (a.mbti[0] !== b.mbti[0]) tags.push('E/I보완');
+      if (a.mbti[2] !== b.mbti[2]) tags.push('T/F밸런스');
+      return tags.slice(0, 6);
+    }
+
+    function buildVerdict(a, b, score, rel, ohengScore, mbtiScore, categories) {
+      const archA = MBTI_ARCHETYPES[a.mbti] || a.mbti;
+      const archB = MBTI_ARCHETYPES[b.mbti] || b.mbti;
+      let v = `${archA}(${a.mbti}) ${a.ohengDay.icon}${a.ohengDay.hanja}와 ${archB}(${b.mbti}) ${b.ohengDay.icon}${b.ohengDay.hanja}의 조합. `;
+      v += `종합 ${score}점, 오행 ${ohengScore}점·MBTI ${mbtiScore}점. `;
+      if (rel === '상생') v += `일간 오행이 상생(相生)이라 에너지가 자연스럽게 이어집니다. `;
+      else if (rel === '상극') v += `일간 오행이 상극(相剋)이라 다름이 끌림이 되지만, 양보와 이해가 열쇠입니다. `;
+      else v += `오행 기운이 비슷해 편안한 공감대가 형성됩니다. `;
+      const best = Object.entries(categories).sort((x, y) => y[1] - x[1])[0];
+      const catNames = { love: '연애·호감', talk: '대화·소통', calm: '갈등 조율', long: '장기 관계' };
+      v += `특히 ${catNames[best[0]]}(${best[1]}%)이 두 사람의 강점입니다.`;
+      return v;
+    }
+
+    function buildShareFullText(r) {
+      const a = r.personA, b = r.personB;
+      const fmt = d => d.replace(/-/g, '.');
+      const cat = r.categories;
+      const lines = [
+        '✨ MBTI × 오행 궁합 결과',
+        '',
+        `${r.grade.emoji} ${r.score}% — ${r.grade.label}`,
+        '',
+        `👤 ${a.mbti}(${a.ohengDay.hanja}) × ${b.mbti}(${b.ohengDay.hanja})`,
+        `📅 ${fmt(a.birthDate)} · ${fmt(b.birthDate)}`,
+        `🌿 일주 ${a.dayMaster} × ${b.dayMaster}`,
+        '',
+        '📊 항목별 궁합',
+        `💕 연애·호감 ${cat.love}%`,
+        `💬 대화·소통 ${cat.talk}%`,
+        `🕊️ 갈등 조율 ${cat.calm}%`,
+        `🌱 장기 관계 ${cat.long}%`,
+        '',
+        '📝 ' + r.summary,
+        '',
+        '💬 ' + r.chemistry,
+        '',
+        '🌿 오행 분석',
+        ...r.ohengLines.map(l => '· ' + l.replace(/<[^>]+>/g, '')),
+        '',
+        '🧠 MBTI 4축',
+        ...r.dimensions.map(d => `· ${d.label}: ${d.text}`),
+        '',
+        '💪 잘 맞는 점',
+        ...r.strengths.map(s => '✓ ' + s),
+        '',
+        '⚠️ 주의할 점',
+        ...r.cautions.map(c => '! ' + c),
+        '',
+        '💡 ' + r.tip,
+        '',
+        r.hashtags,
+        '',
+        '🔗 나도 테스트하기',
+        r.share.url
+      ];
+      return lines.join('\n');
+    }
+
+    function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split('');
+      let line = '';
+      let cy = y;
+      for (let i = 0; i < words.length; i++) {
+        const test = line + words[i];
+        if (ctx.measureText(test).width > maxWidth && line) {
+          ctx.fillText(line, x, cy);
+          line = words[i];
+          cy += lineHeight;
+        } else {
+          line = test;
+        }
+      }
+      if (line) ctx.fillText(line, x, cy);
+      return cy + lineHeight;
+    }
+
+    function buildShareImageBlob(r) {
+      return new Promise(resolve => {
+        const W = 1080, H = 1350;
+        const canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, '#1a1a2e');
+        grad.addColorStop(0.5, '#312e81');
+        grad.addColorStop(1, '#4c1d95');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.font = '32px -apple-system, sans-serif';
+        ctx.fillText('MBTI × 오행 궁합', W / 2, 80);
+
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 120px -apple-system, sans-serif';
+        ctx.fillText(r.score + '% ' + r.grade.emoji, W / 2, 220);
+        ctx.font = 'bold 40px -apple-system, sans-serif';
+        ctx.fillText(r.grade.label, W / 2, 280);
+
+        ctx.font = '36px -apple-system, sans-serif';
+        ctx.fillText(
+          r.personA.mbti + '(' + r.personA.ohengDay.hanja + ') × ' +
+          r.personB.mbti + '(' + r.personB.ohengDay.hanja + ')',
+          W / 2, 350
+        );
+
+        const cat = r.categories;
+        ctx.font = '28px -apple-system, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.fillText(`💕연애 ${cat.love}%  💬소통 ${cat.talk}%`, W / 2, 410);
+        ctx.fillText(`🕊️조율 ${cat.calm}%  🌱장기 ${cat.long}%`, W / 2, 450);
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = '26px -apple-system, sans-serif';
+        let y = 520;
+        ctx.fillText('💪 잘 맞는 점', 80, y);
+        y += 40;
+        ctx.font = '24px -apple-system, sans-serif';
+        r.strengths.slice(0, 3).forEach(s => {
+          y = wrapCanvasText(ctx, '· ' + s, 80, y, W - 160, 34);
+        });
+
+        y += 20;
+        ctx.font = '26px -apple-system, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fillText('⚠️ 주의할 점', 80, y);
+        y += 40;
+        ctx.font = '24px -apple-system, sans-serif';
+        r.cautions.slice(0, 2).forEach(c => {
+          y = wrapCanvasText(ctx, '· ' + c, 80, y, W - 160, 34);
+        });
+
+        y += 20;
+        ctx.font = '26px -apple-system, sans-serif';
+        ctx.fillText('💡 관계 팁', 80, y);
+        y += 40;
+        ctx.font = '24px -apple-system, sans-serif';
+        wrapCanvasText(ctx, r.tip, 80, y, W - 160, 34);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.font = '24px -apple-system, sans-serif';
+        ctx.fillText('saju.kaltaelee.com', W / 2, H - 60);
+        ctx.fillText('#MBTI궁합 #오행궁합', W / 2, H - 25);
+
+        canvas.toBlob(blob => resolve(blob), 'image/png');
+      });
+    }
+
+    function downloadBlob(blob, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
     function buildDetailedAnalysis(a, b, score, grade, ohengScore, mbtiScore) {
       const rel = getRelation(a.ohengDay, b.ohengDay);
       const tA = a.ohengDay.type, tB = b.ohengDay.type;
       const taM = a.ohengMbti.type, tbM = b.ohengMbti.type;
+      const relDetail = getRelDetail(tA, tB);
 
       const categories = {
         love: Math.min(99, Math.round(ohengScore * 0.55 + mbtiScore * 0.45 + (rel === '상생' ? 6 : 0))),
@@ -835,62 +1097,77 @@
         long: Math.min(99, Math.round((ohengScore + mbtiScore) / 2 + (a.mbti[3] === 'J' && b.mbti[3] === 'J' ? 5 : 3)))
       };
 
-      const dimLabels = ['외향/내향', '직관/감각', '사고/감정', '계획/즉흥'];
       const dimNames = { E:'외향', I:'내향', N:'직관', S:'감각', T:'이성', F:'감성', J:'계획', P:'유연' };
-      const dimensions = dimLabels.map((label, i) => {
+      const dimensions = ['외향/내향', '직관/감각', '사고/감정', '계획/즉흥'].map((label, i) => {
         const c1 = a.mbti[i], c2 = b.mbti[i], same = c1 === c2;
         let text = same
-          ? `둘 다 ${dimNames[c1]}형 — 에너지·리듬이 비슷해 편안합니다.`
-          : `${dimNames[c1]} × ${dimNames[c2]} — 서로 다른 방식이지만 보완될 수 있습니다.`;
-        if (i === 2 && same && c1 === 'T') text = '둘 다 이성형 — 논리·팩트로 대화가 잘 통합니다.';
-        if (i === 2 && same && c1 === 'F') text = '둘 다 감성형 — 공감·배려가 자연스럽게 오갑니다.';
-        if (i === 2 && !same) text += ' 감정 표현 방식 차이에 한 번 더 확인하세요.';
+          ? `둘 다 ${dimNames[c1]}형 — 생활 리듬과 에너지 방향이 비슷해 편안합니다.`
+          : `${dimNames[c1]}(${a.mbti[i]}) × ${dimNames[c2]}(${b.mbti[i]}) — 다르지만 서로의 부족한 면을 채워줄 수 있습니다.`;
+        if (i === 0 && !same) text += ' 외향인이 리드, 내향인이 깊이를 더하는 구조가 잘 맞습니다.';
+        if (i === 1 && !same) text += ' N은 큰 그림, S는 디테일 — 함께하면 실행력이 올라갑니다.';
+        if (i === 2 && same && c1 === 'T') text = '둘 다 이성형 — 문제 해결·논리 대화가 잘 통하고, 갈등도 팩트로 풀어갑니다.';
+        if (i === 2 && same && c1 === 'F') text = '둘 다 감성형 — 공감·배려가 풍부하고, 감정 표현이 자연스럽습니다.';
+        if (i === 2 && !same) text += ' T는 해결책, F는 공감 — 말투만 조심하면 최고의 보완 관계.';
+        if (i === 3 && !same) text += ' J는 계획, P는 유연 — 여행·약속에서 역할 분담이 중요.';
         return { label, text };
       });
 
       const ohengLines = [
         `【나】 일주 ${a.dayMaster} → 일간 ${a.ohengDay.labelKo}(${a.ohengDay.hanja}) ${DAY_DESC[tA]}`,
         `【상대】 일주 ${b.dayMaster} → 일간 ${b.ohengDay.labelKo}(${b.ohengDay.hanja}) ${DAY_DESC[tB]}`,
-        `일간 관계: ${a.ohengDay.labelKo}(${a.ohengDay.hanja}) × ${b.ohengDay.labelKo}(${b.ohengDay.hanja}) = ${rel} (오행 ${ohengScore}점)`,
-        rel === '상생' ? `${a.ohengDay.labelKo}(生)${b.ohengDay.labelKo} — 서로의 기운을 키워주는 조합입니다.`
-          : rel === '상극' ? `${a.ohengDay.labelKo}(剋)${b.ohengDay.labelKo} — 끌림과 긴장이 공존합니다.`
-          : '비슷한 기운 — 공감·편안함이 큰 관계.'
+        `일간 관계: ${a.ohengDay.labelKo}(${a.ohengDay.hanja}) × ${b.ohengDay.labelKo}(${b.ohengDay.hanja}) = <b>${rel}</b> (오행 ${ohengScore}점)`,
+        relDetail
       ];
-      if (GENERATES[tA] === tB) ohengLines.push(`✦ 나(일간) ${a.ohengDay.labelKo} → 상대 ${b.ohengDay.labelKo} 생(生) — 상대에게 힘이 됩니다.`);
-      if (GENERATES[tB] === tA) ohengLines.push(`✦ 상대(일간) ${b.ohengDay.labelKo} → 나 ${a.ohengDay.labelKo} 생(生) — 나에게 힘이 됩니다.`);
-      if (GENERATES[taM] === tbM) ohengLines.push(`✦ MBTI: ${a.mbti}(${a.ohengMbti.labelKo}) → ${b.mbti}(${b.ohengMbti.labelKo}) 상생 보완`);
-      if (GENERATES[tbM] === taM) ohengLines.push(`✦ MBTI: ${b.mbti}(${b.ohengMbti.labelKo}) → ${a.mbti}(${a.ohengMbti.labelKo}) 상생 보완`);
+      if (GENERATES[tA] === tB) ohengLines.push(`✦ 나(일간) ${a.ohengDay.labelKo} → 상대 ${b.ohengDay.labelKo} 생(生) — 상대에게 힘이 되는 관계.`);
+      if (GENERATES[tB] === tA) ohengLines.push(`✦ 상대(일간) ${b.ohengDay.labelKo} → 나 ${a.ohengDay.labelKo} 생(生) — 나에게 힘이 되는 관계.`);
+      if (GENERATES[taM] === tbM) ohengLines.push(`✦ MBTI 오행: ${a.mbti}(${a.ohengMbti.labelKo}) → ${b.mbti}(${b.ohengMbti.labelKo}) 상생 보완.`);
+      if (GENERATES[tbM] === taM) ohengLines.push(`✦ MBTI 오행: ${b.mbti}(${b.ohengMbti.labelKo}) → ${a.mbti}(${a.ohengMbti.labelKo}) 상생 보완.`);
 
       const strengths = [];
-      if (rel === '상생') strengths.push('사주 오행 상생(相生) — 자연스럽게 서로를 도와주는 기운');
-      if (mbtiScore >= 80) strengths.push(`${a.mbti} × ${b.mbti} — MBTI 궁합 ${mbtiScore}점, 성향 시너지가 큼`);
-      if (a.mbti[0] === b.mbti[0]) strengths.push(`에너지 방향(${a.mbti[0] === 'E' ? '외향' : '내향'})이 같아 함께 있을 때 편함`);
+      if (rel === '상생') strengths.push('사주 오행 상생(相生) — 에너지가 자연스럽게 순환하는 관계');
+      if (mbtiScore >= 80) strengths.push(`${MBTI_ARCHETYPES[a.mbti]} × ${MBTI_ARCHETYPES[b.mbti]} — MBTI ${mbtiScore}점, 성향 시너지 큼`);
+      if (a.mbti[0] === b.mbti[0]) strengths.push(`${a.mbti[0] === 'E' ? '외향' : '내향'} 에너지가 같아 함께 있을 때 편안함`);
       if (a.mbti[2] === b.mbti[2]) strengths.push(`${a.mbti[2] === 'T' ? '이성' : '감성'} 중심이 같아 갈등 후 화해가 빠름`);
+      if (a.mbti[1] === b.mbti[1] && a.mbti[1] === 'N') strengths.push('둘 다 N(직관) — 미래·가능성 이야기로 깊은 대화 가능');
       if (categories.love >= 80) strengths.push(`연애·호감 ${categories.love}% — 서로 끌리는 에너지가 강함`);
-      if (!strengths.length) strengths.push('서로 다른 점이 많아 새로운 시각을 주고받을 수 있음');
+      if (categories.talk >= 80) strengths.push(`대화·소통 ${categories.talk}% — 대화가 잘 통하는 편`);
+      if (!strengths.length) strengths.push('서로 다른 점이 많아 — 새로운 시각과 경험을 나눌 수 있음');
 
       const cautions = [];
-      if (rel === '상극') cautions.push('오행 상극(相剋) — 의견·가치관 충돌 시 양보가 필요');
-      if (a.mbti[2] !== b.mbti[2]) cautions.push('T(이성) vs F(감성) — 말투 하나로 상처받을 수 있음');
-      if (a.mbti[3] !== b.mbti[3]) cautions.push('J(계획) vs P(즉흥) — 약속·일정에서 마찰 가능');
-      if (a.mbti[1] !== b.mbti[1]) cautions.push('N(직관) vs S(감각) — 대화 주제·관심사가 다를 수 있음');
+      if (rel === '상극') cautions.push('오행 상극(相剋) — 가치관·속도 차이, 양보와 대화가 필요');
+      if (a.mbti[2] !== b.mbti[2]) cautions.push('T(이성) vs F(감성) — "위로" vs "해결" 기대 차이로 상처받을 수 있음');
+      if (a.mbti[3] !== b.mbti[3]) cautions.push('J(계획) vs P(즉흥) — 약속·일정·여행 스타일 충돌 가능');
+      if (a.mbti[1] !== b.mbti[1]) cautions.push('N(직관) vs S(감각) — 관심사·대화 주제가 다를 수 있음');
+      if (a.mbti[0] !== b.mbti[0]) cautions.push('E(외향) vs I(내향) — 혼자만의 시간 vs 함께하는 시간 비율 조율 필요');
       if (!cautions.length) cautions.push('특별한 주의점은 적음 — 궁합은 참고, 소통이 가장 중요');
 
       const tips = [
         rel === '상극' ? '갈등 시 "누가 맞다"보다 "우리가 어떻게 맞출까"로 접근하세요.' : null,
         a.mbti[2] !== b.mbti[2] ? '상대가 T면 팩트·해결책을, F면 공감·감정을 먼저 건네세요.' : null,
         a.mbti[3] !== b.mbti[3] ? '약속·계획은 한쪽이 리드, 한쪽이 유연하게 맞추는 역할을 나눠보세요.' : null,
-        `오행 ${a.ohengDay.labelKo} × ${b.ohengDay.labelKo} — ${a.ohengDay.icon}${b.ohengDay.icon} 테마로 기념일·선물 아이디어를 활용해 보세요.`
+        `오행 ${a.ohengDay.labelKo} × ${b.ohengDay.labelKo} — ${a.ohengDay.icon}${b.ohengDay.icon} 컬러·테마로 기념일·선물 아이디어 활용.`
       ].filter(Boolean);
 
       const summary = score >= 85
         ? `${a.ohengDay.labelKo}(${a.ohengDay.hanja}) × ${b.ohengDay.labelKo}(${b.ohengDay.hanja}) ${rel}! ${grade.emoji} ${grade.label}`
-        : `${a.mbti} × ${b.mbti} — ${grade.label}`;
+        : `${MBTI_ARCHETYPES[a.mbti]} × ${MBTI_ARCHETYPES[b.mbti]} — ${grade.label}`;
 
+      const chemistry = `${MBTI_ARCHETYPES[a.mbti]} ${a.mbti}(${a.ohengDay.hanja})와 ${MBTI_ARCHETYPES[b.mbti]} ${b.mbti}(${b.ohengDay.hanja}) — ${relDetail.split('.')[0]}.`;
+
+      const keywords = buildKeywords(a, b, rel, grade);
+      const verdict = buildVerdict(a, b, score, rel, ohengScore, mbtiScore, categories);
+      const hashtags = '#MBTI궁합 #오행궁합 #' + a.mbti + ' #' + b.mbti + ' #사주궁합';
       const shareUrl = CONFIG.siteUrl + '?utm_source=share&utm_medium=social';
-      const shareText = `우리 MBTI×오행 궁합 ${score}% ${grade.emoji}\n${a.mbti}(${a.ohengDay.hanja}) × ${b.mbti}(${b.ohengDay.hanja})\n${categories.love}% 연애 · ${categories.talk}% 소통\n→ ${shareUrl}`;
+      const shareText = buildShareFullText({
+        personA: a, personB: b, score, grade, categories, summary, chemistry,
+        ohengLines, dimensions, strengths, cautions, tip: tips[0],
+        hashtags, share: { url: shareUrl }
+      });
 
-      return { summary, shareText, shareUrl, categories, dimensions, ohengLines, strengths, cautions, tip: tips[0] };
+      return {
+        summary, shareText, shareUrl, categories, dimensions, ohengLines,
+        strengths, cautions, tip: tips[0], chemistry, keywords, verdict, hashtags
+      };
     }
 
     function calculate(input) {
@@ -929,6 +1206,10 @@
         strengths: texts.strengths,
         cautions: texts.cautions,
         tip: texts.tip,
+        chemistry: texts.chemistry,
+        keywords: texts.keywords,
+        verdict: texts.verdict,
+        hashtags: texts.hashtags,
         share: { text: texts.shareText, url: texts.shareUrl, title: `궁합 ${score}%` },
         summary: texts.summary,
         calculatedAt: new Date().toISOString()
@@ -1074,6 +1355,9 @@
       $('#result-score').textContent = r.score + '%';
       $('#result-grade').textContent = r.grade.emoji + ' ' + r.grade.label;
       $('#result-summary').textContent = r.summary;
+      $('#result-keywords').innerHTML = r.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('');
+      $('#result-chemistry').textContent = r.chemistry;
+      $('#result-verdict').textContent = r.verdict;
 
       const barNames = { love: '💕 연애·호감', talk: '💬 대화·소통', calm: '🕊️ 갈등 조율', long: '🌱 장기 관계' };
       $('#result-bars').innerHTML = Object.keys(r.categories).map(k => barHtml(barNames[k], r.categories[k])).join('');
@@ -1108,6 +1392,7 @@
         <div class="sc-url">saju.kaltaelee.com</div>`;
 
       window.__lastResult = r;
+      r.share.text = buildShareFullText(r);
     }
 
     function openMbtiModal(person) {
@@ -1167,50 +1452,118 @@
         runLoading();
       });
 
-      $('#btn-copy').addEventListener('click', async () => {
+      $('#btn-copy-text').addEventListener('click', async () => {
         const r = window.__lastResult;
         if (!r) return;
+        const text = buildShareFullText(r);
         try {
-          await navigator.clipboard.writeText(r.share.text);
-          showToast('링크가 복사되었습니다!');
+          await navigator.clipboard.writeText(text);
+          showToast('결과 전체가 복사되었습니다!');
         } catch {
-          showToast('복사에 실패했습니다. 직접 선택해 주세요.');
+          showToast('복사에 실패했습니다.');
         }
       });
 
-      $('#btn-save').addEventListener('click', () => {
+      $('#btn-copy-link').addEventListener('click', async () => {
         const r = window.__lastResult;
         if (!r) return;
-        const canvas = document.createElement('canvas');
-        canvas.width = 1080;
-        canvas.height = 1080;
-        const ctx = canvas.getContext('2d');
-        const grad = ctx.createLinearGradient(0, 0, 1080, 1080);
-        grad.addColorStop(0, '#1a1a2e');
-        grad.addColorStop(1, '#4c1d95');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 1080, 1080);
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.font = '36px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('MBTI × 오행 궁합', 540, 200);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 160px sans-serif';
-        ctx.fillText(r.score + '% ' + r.grade.emoji, 540, 480);
-        ctx.font = '42px sans-serif';
-        ctx.fillText(
+        try {
+          await navigator.clipboard.writeText(r.share.url);
+          showToast('테스트 링크가 복사되었습니다!');
+        } catch {
+          showToast('복사에 실패했습니다.');
+        }
+      });
+
+      $('#btn-save').addEventListener('click', async () => {
+        const r = window.__lastResult;
+        if (!r) return;
+        const blob = await buildShareImageBlob(r);
+        downloadBlob(blob, 'mbti-oheng-' + r.score + '.png');
+        showToast('상세 결과 이미지가 저장되었습니다!');
+      });
+
+      $('#btn-share-native').addEventListener('click', async () => {
+        const r = window.__lastResult;
+        if (!r) return;
+        const text = buildShareFullText(r);
+        const blob = await buildShareImageBlob(r);
+        const file = new File([blob], 'mbti-oheng-result.png', { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'MBTI × 오행 궁합 ' + r.score + '%',
+              text: text.slice(0, 500),
+              files: [file]
+            });
+            return;
+          } catch (e) {
+            if (e.name === 'AbortError') return;
+          }
+        }
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: 'MBTI × 오행 궁합', text: text });
+            return;
+          } catch (e) {
+            if (e.name === 'AbortError') return;
+          }
+        }
+        downloadBlob(blob, 'mbti-oheng-' + r.score + '.png');
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('이미지 저장 + 결과 텍스트 복사됨!');
+        } catch {
+          showToast('이미지가 저장되었습니다.');
+        }
+      });
+
+      $('#btn-share-insta').addEventListener('click', async () => {
+        const r = window.__lastResult;
+        if (!r) return;
+        const text = buildShareFullText(r);
+        const blob = await buildShareImageBlob(r);
+        const file = new File([blob], 'mbti-oheng-insta.png', { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'MBTI × 오행 궁합',
+              text: r.hashtags + '\n' + r.share.url,
+              files: [file]
+            });
+            showToast('공유 메뉴에서 인스타 선택!');
+            return;
+          } catch (e) {
+            if (e.name === 'AbortError') return;
+          }
+        }
+        downloadBlob(blob, 'mbti-oheng-insta.png');
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('📷 이미지 저장 + 캡션 복사! 인스타에 붙여넣기');
+        } catch {
+          showToast('이미지 저장됨 → 인스타에 올려주세요');
+        }
+      });
+
+      $('#btn-share-threads').addEventListener('click', async () => {
+        const r = window.__lastResult;
+        if (!r) return;
+        const shortText = [
+          '✨ MBTI × 오행 궁합 ' + r.score + '% ' + r.grade.emoji,
           r.personA.mbti + '(' + r.personA.ohengDay.hanja + ') × ' +
-          r.personB.mbti + '(' + r.personB.ohengDay.hanja + ')',
-          540, 620
-        );
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.font = '28px sans-serif';
-        ctx.fillText('saju.kaltaelee.com', 540, 900);
-        const link = document.createElement('a');
-        link.download = 'mbti-oheng-result.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        showToast('이미지가 저장되었습니다!');
+            r.personB.mbti + '(' + r.personB.ohengDay.hanja + ')',
+          '💕' + r.categories.love + '% 💬' + r.categories.talk + '%',
+          r.summary,
+          r.hashtags,
+          r.share.url
+        ].join('\n');
+        const threadsUrl = 'https://www.threads.net/intent/post?text=' + encodeURIComponent(shortText);
+        try {
+          await navigator.clipboard.writeText(buildShareFullText(r));
+        } catch (_) {}
+        window.open(threadsUrl, '_blank');
+        showToast('스레드 작성창이 열렸습니다!');
       });
 
       $('#btn-retry').addEventListener('click', () => {
