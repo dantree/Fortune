@@ -1,6 +1,18 @@
-# MBTI × 오행 궁합 테스트
+# 사주 도구 (Fortune)
 
 에버그린 도구형 콘텐츠 · GitHub Pages · `saju.kaltaelee.com`
+
+**결정론적 계산** — 같은 생년월일·MBTI → 항상 같은 결과 (랜덤 없음)
+
+## 도구 목록
+
+| 도구 | 경로 |
+|------|------|
+| 홈 (허브) | `/index.html` |
+| MBTI × 오행 궁합 | `/mbti-oheng.html` |
+| 내 일주 찾기 | `/tools/ilju.html` |
+| 띠 궁합 | `/tools/ddi-compat.html` |
+| 계산 검증 | `/tests/verify.html` |
 
 ## 로컬 미리보기
 
@@ -10,32 +22,21 @@ python3 -m http.server 8080
 # http://localhost:8080
 ```
 
+## 계산 기준
+
+[docs/CALCULATION.md](./docs/CALCULATION.md) — 만세력 JDN, 입춘 2/4, 엔진 v1.0
+
 ## GitHub Pages 배포
 
 1. GitHub에 `Fortune` 저장소 push
 2. **Settings → Pages → Source**: Deploy from branch `main`, folder `/ (root)`
-3. **Custom domain**: `saju.kaltaelee.com` 입력
-4. DNS에 CNAME 추가 (아래 참고)
-
-## DNS 설정 (kaltaelee.com)
-
-| 호스트 | 타입 | 값 |
-|--------|------|-----|
-| `saju` | CNAME | `[username].github.io` |
-
-추가 비용 없음 — 기존 도메인의 서브도메인만 추가.
-
-## AdSense 연결
-
-1. [AdSense](https://www.google.com/adsense) → **사이트** → `saju.kaltaelee.com` 추가
-2. `index.html` head의 AdSense script 주석 해제 + `ca-pub-XXXX` 교체
-3. `#ad-top`, `#ad-loading`, `#ad-result` 슬롯에 광고 단위 코드 삽입
+3. **Custom domain**: `saju.kaltaelee.com`
 
 ## Blogspot iframe
 
 ```html
 <iframe
-  src="https://saju.kaltaelee.com/?embed=1"
+  src="https://saju.kaltaelee.com/mbti-oheng.html?embed=1"
   width="100%"
   height="720"
   style="border:none;max-width:480px;display:block;margin:0 auto;">

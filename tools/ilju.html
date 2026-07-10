@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="생년월일로 일주(日柱), 년주, 띠, 일간 오행을 확인하세요. 만세력 JDN 기준.">
+  <title>내 일주 찾기 | 사주 도구</title>
+  <script src="../config.js"></script>
+  <script src="../js/saju-engine.js"></script>
+  <style>
+    :root {
+      --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
+      --primary: #6b4eff; --radius: 14px; --shadow: 0 4px 24px rgba(107,78,255,.12);
+      --wood:#4caf50; --fire:#f44336; --earth:#ffc107; --metal:#78909c; --water:#2196f3;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
+    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 60px; }
+    .back { font-size: 13px; color: var(--muted); text-decoration: none; display: block; margin-bottom: 12px; }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .hero { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input[type=date] { width: 100%; padding: 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 16px; }
+    .btn { width: 100%; padding: 14px; margin-top: 12px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, var(--primary), #9333ea); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .result { display: none; }
+    .result.show { display: block; }
+    .pillar-big { font-size: 48px; font-weight: 900; text-align: center; margin: 12px 0; letter-spacing: 4px; }
+    .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    .row:last-child { border: none; }
+    .row span:first-child { color: var(--muted); }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; }
+    .badge.wood{background:var(--wood)} .badge.fire{background:var(--fire)} .badge.earth{background:var(--earth);color:#333}
+    .badge.metal{background:var(--metal)} .badge.water{background:var(--water)}
+    .desc { font-size: 14px; line-height: 1.7; color: #374151; margin-top: 12px; padding: 12px; background: #fafafa; border-radius: 10px; }
+    footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 20px; line-height: 1.8; }
+    footer a { color: var(--primary); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <a class="back" href="../index.html">← 사주 도구 홈</a>
+    <h1>📅 내 일주 찾기</h1>
+    <p class="hero">양력 생년월일로 일주·년주·띠를 확인합니다</p>
+
+    <div class="card">
+      <label for="birth">생년월일</label>
+      <input type="date" id="birth" min="1900-01-01">
+      <button type="button" class="btn" id="btn-go">일주 확인</button>
+    </div>
+
+    <div class="card result" id="result">
+      <div class="pillar-big" id="day-pillar">—</div>
+      <div class="row"><span>일간 오행</span><span id="day-oheng">—</span></div>
+      <div class="row"><span>년주</span><span id="year-pillar">—</span></div>
+      <div class="row"><span>띠 (입춘 기준)</span><span id="animal">—</span></div>
+      <div class="row"><span>사주년</span><span id="saju-year">—</span></div>
+      <div class="desc" id="day-desc"></div>
+    </div>
+
+    <footer>
+      만세력 JDN v<span id="ver"></span> · 입춘 2/4 · <a href="../docs/CALCULATION.md">계산 기준</a>
+    </footer>
+  </div>
+  <script>
+  (function () {
+    var SE = window.SajuEngine;
+    document.getElementById('ver').textContent = SE.VERSION;
+    var birth = document.getElementById('birth');
+    birth.max = new Date().toISOString().slice(0, 10);
+
+    function show() {
+      var d = birth.value;
+      if (!d) return;
+      var s = SE.getFullSaju(d);
+      var oh = s.day.oheng;
+      document.getElementById('day-pillar').textContent = s.day.pillar;
+      document.getElementById('day-oheng').innerHTML =
+        '<span class="badge ' + oh.type + '">' + oh.icon + ' ' + oh.labelKo + '(' + oh.hanja + ')</span>';
+      document.getElementById('year-pillar').textContent = s.year.pillar + '년';
+      document.getElementById('animal').textContent = s.year.animal + '띠 (' + s.year.animalBranch + ')';
+      document.getElementById('saju-year').textContent = s.year.sajuYear + '년';
+      document.getElementById('day-desc').textContent = s.day.description;
+      document.getElementById('result').classList.add('show');
+    }
+
+    document.getElementById('btn-go').addEventListener('click', show);
+    birth.addEventListener('change', show);
+  })();
+  </script>
+</body>
+</html>
