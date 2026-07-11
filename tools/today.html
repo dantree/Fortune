@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="오늘의 운세와 추천 로또 번호. 만세력 기준 결정론적 계산.">
+  <title>오늘의 운세 · 로또 | 사주 도구</title>
+  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
+  <script src="../js/birth-date.js"></script>
+  <script src="../js/saju-engine.js"></script>
+  <script src="../js/site.js"></script>
+  <style>
+    :root {
+      --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
+      --primary: #6b4eff; --radius: 14px; --shadow: 0 4px 24px rgba(107,78,255,.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
+    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 24px; }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .hero { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+      background: #fff; color: var(--muted); cursor: pointer; box-shadow: var(--shadow);
+    }
+    .tab.active { background: var(--primary); color: #fff; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input[type=date] { width: 100%; padding: 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 16px; margin-bottom: 12px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, var(--primary), #9333ea); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .score { font-size: 56px; font-weight: 900; color: var(--primary); text-align: center; }
+    .grade { text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .summary { font-size: 14px; line-height: 1.75; color: #374151; padding: 12px; background: #fafafa; border-radius: 10px; margin-bottom: 12px; }
+    .tip-box {
+      font-size: 13px; line-height: 1.65; color: #4c1d95; background: #ede9fe;
+      padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; font-weight: 600;
+    }
+    .area { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    .area:last-child { border: none; }
+    .area b { color: var(--text); }
+    .area .pct { color: var(--primary); font-weight: 700; white-space: nowrap; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip { font-size: 12px; padding: 5px 10px; border-radius: 20px; background: #ede9fe; color: #4c1d95; font-weight: 600; }
+    .balls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 16px 0; }
+    .ball {
+      width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #fff; font-size: 16px;
+      background: linear-gradient(145deg, #6b4eff, #9333ea);
+      box-shadow: 0 4px 12px rgba(107,78,255,.35);
+    }
+    .ball.bonus { background: linear-gradient(145deg, #f59e0b, #d97706); }
+    .lotto-head { text-align: center; font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+    .lotto-story { font-size: 14px; line-height: 1.75; color: #374151; margin-bottom: 12px; }
+    .why { padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+    .why:last-child { border: none; }
+    .why .q { font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 3px; }
+    .why .a { font-size: 13px; line-height: 1.65; color: #374151; }
+    .num-note {
+      display: flex; gap: 10px; align-items: flex-start; padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6; font-size: 13px; line-height: 1.55;
+    }
+    .num-note:last-child { border: none; }
+    .num-note .n {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+      background: #ede9fe; color: #4c1d95; font-weight: 800; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .disclaimer { font-size: 12px; color: #92400e; background: #fffbeb; padding: 12px; border-radius: 10px; line-height: 1.6; margin-top: 12px; }
+    .sec-title { font-size: 14px; font-weight: 800; margin: 14px 0 6px; }
+    .today-line { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="site-top"></div>
+    <h1>☀️ 오늘의 운세</h1>
+    <p class="hero">사랑 · 돈 · 일 · 나를 위한 오늘의 힌트</p>
+    <p class="today-line" id="today-line"></p>
+
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="fortune">운세</button>
+      <button type="button" class="tab" data-tab="lotto">추천 로또</button>
+    </div>
+
+    <div class="panel active" id="panel-fortune">
+      <div class="card">
+        <label>달력</label>
+        <div id="cal-f"></div>
+        <label for="birth-f">내 생년월일</label>
+        <input type="date" id="birth-f" min="1900-01-01" max="2050-12-31">
+        <button type="button" class="btn" id="btn-fortune">오늘 운세 보기</button>
+      </div>
+      <div class="card hidden" id="fortune-result">
+        <div class="score" id="f-score">—</div>
+        <div class="grade" id="f-grade"></div>
+        <div class="tip-box" id="f-tip"></div>
+        <div class="summary" id="f-summary"></div>
+        <div id="f-areas"></div>
+        <div class="meta" id="f-meta"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-lotto">
+      <div class="card">
+        <label>달력 (선택)</label>
+        <div id="cal-l"></div>
+        <label for="birth-l">생년월일 (선택 · 넣으면 나만의 번호)</label>
+        <input type="date" id="birth-l" min="1900-01-01" max="2050-12-31">
+        <button type="button" class="btn" id="btn-lotto">오늘 번호 뽑기</button>
+      </div>
+      <div class="card hidden" id="lotto-result">
+        <p class="today-line" id="lotto-date"></p>
+        <div class="lotto-head" id="lotto-head"></div>
+        <div class="balls" id="lotto-balls"></div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:12px">보너스 <b id="lotto-bonus"></b></p>
+        <p class="lotto-story" id="lotto-story"></p>
+        <div class="sec-title">🎱 왜 이 번호일까?</div>
+        <div id="lotto-why"></div>
+        <div class="sec-title">✨ 번호별 한 줄</div>
+        <div id="lotto-notes"></div>
+        <div class="disclaimer" id="lotto-disc"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function () {
+    window.SiteNav.mount('today');
+    var SE = window.SajuEngine;
+    var BD = window.BirthDate;
+    var today = SE.todayDateStr();
+    document.getElementById('birth-f').max = today;
+    document.getElementById('birth-l').max = today;
+    document.getElementById('today-line').textContent =
+      '오늘 ' + today.replace(/-/g, '.') + ' · 같은 날이면 결과 고정';
+
+    var fieldF = BD.enhance({
+      name: 'today-f',
+      dateInput: document.getElementById('birth-f'),
+      mountEl: document.getElementById('cal-f')
+    });
+    var fieldL = BD.enhance({
+      name: 'today-l',
+      dateInput: document.getElementById('birth-l'),
+      mountEl: document.getElementById('cal-l')
+    });
+
+    var saved = BD.loadBirth();
+    if (saved) {
+      BD.applySaved(fieldF, document.getElementById('birth-f'), saved);
+      BD.applySaved(fieldL, document.getElementById('birth-l'), saved);
+    }
+
+    document.querySelectorAll('.tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    function showFortune() {
+      var v = fieldF.getValue();
+      if (!v.ok) return;
+      BD.saveBirth(v);
+      var f = SE.getDailyFortune(v.solar, today);
+      document.getElementById('f-score').textContent = f.score + '%';
+      document.getElementById('f-grade').textContent = f.emoji + ' ' + f.grade;
+      document.getElementById('f-tip').textContent = f.mood + ' ' + f.tip;
+      document.getElementById('f-summary').textContent = f.summary;
+      document.getElementById('f-areas').innerHTML = Object.keys(f.areas).map(function (k) {
+        var a = f.areas[k];
+        return '<div class="area"><div><b>' + a.label + '</b><br><span style="color:#6b7280">' + a.text +
+          '</span></div><div class="pct">' + a.score + '%</div></div>';
+      }).join('');
+      document.getElementById('f-meta').innerHTML =
+        '<span class="chip">오늘 추천 · ' + f.focus + '</span>' +
+        '<span class="chip">행운색 ' + f.luckyColor + '</span>' +
+        '<span class="chip">' + f.luckyItem + '</span>' +
+        '<span class="chip">포인트 ' + f.luckyNumber + '</span>';
+      document.getElementById('fortune-result').classList.remove('hidden');
+    }
+
+    function showLotto() {
+      var raw = document.getElementById('birth-l').value;
+      var solar = null;
+      if (raw) {
+        var v = fieldL.getValue();
+        if (!v.ok) return;
+        BD.saveBirth(v);
+        solar = v.solar;
+      }
+      var L = SE.getLottoNumbers(today, solar);
+      document.getElementById('lotto-date').textContent =
+        L.date.replace(/-/g, '.') + (solar ? ' · 생일 연동' : ' · 오늘 공통 번호');
+      document.getElementById('lotto-head').textContent = L.headline;
+      document.getElementById('lotto-balls').innerHTML =
+        L.numbers.map(function (n) { return '<div class="ball">' + n + '</div>'; }).join('') +
+        '<div class="ball bonus">' + L.bonus + '</div>';
+      document.getElementById('lotto-bonus').textContent = L.bonus;
+      document.getElementById('lotto-story').textContent = L.story;
+      document.getElementById('lotto-why').innerHTML = L.why.map(function (w) {
+        return '<div class="why"><div class="q">' + w.label + '</div><div class="a">' + w.text + '</div></div>';
+      }).join('');
+      document.getElementById('lotto-notes').innerHTML = L.numberNotes.map(function (n) {
+        return '<div class="num-note"><div class="n">' + n.number + '</div><div>' + n.text + '</div></div>';
+      }).join('');
+      document.getElementById('lotto-disc').textContent = L.disclaimer;
+      document.getElementById('lotto-result').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-fortune').addEventListener('click', showFortune);
+    document.getElementById('btn-lotto').addEventListener('click', showLotto);
+
+    if (location.hash === '#lotto') {
+      document.querySelector('[data-tab="lotto"]').click();
+    }
+    if (saved && saved.date) showFortune();
+  })();
+  </script>
+</body>
+</html>

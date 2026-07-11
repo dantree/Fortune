@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="오늘 날짜로 뽑는 키워드 카드. 같은 날이면 같은 카드.">
+  <title>오늘의 카드 | 사주 도구</title>
+  <script src="../js/saju-engine.js"></script>
+  <script src="../js/site.js"></script>
+  <style>
+    :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
+    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 28px; }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .hero { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+    .card-face {
+      border-radius: 20px; padding: 28px 22px; text-align: center; color: #fff;
+      background: linear-gradient(160deg, #4c1d95, #6b4eff 55%, #a855f7);
+      box-shadow: 0 14px 36px rgba(76,29,149,.3); margin-bottom: 16px;
+      min-height: 280px; display: flex; flex-direction: column; justify-content: center; gap: 10px;
+    }
+    .card-face .emoji { font-size: 48px; }
+    .card-face .kw { font-size: 28px; font-weight: 900; letter-spacing: -.02em; }
+    .card-face .msg { font-size: 15px; line-height: 1.6; opacity: .95; }
+    .card-face .meta { font-size: 12px; opacity: .75; margin-top: 8px; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn {
+      padding: 12px; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer;
+      background: #fff; color: var(--primary); box-shadow: 0 4px 16px rgba(107,78,255,.12);
+    }
+    .btn.ghost { background: transparent; box-shadow: none; color: var(--muted); }
+    .toast { text-align: center; font-size: 13px; color: var(--primary); margin-top: 10px; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="site-top"></div>
+    <h1>🃏 오늘의 카드</h1>
+    <p class="hero">오늘 날짜로 뽑는 키워드 한 장 · 같은 날이면 카드가 바뀌지 않아요</p>
+
+    <div class="card-face" id="face">
+      <div class="emoji" id="emoji">✨</div>
+      <div class="kw" id="kw">—</div>
+      <div class="msg" id="msg"></div>
+      <div class="meta" id="meta"></div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="btn-copy">문구 복사</button>
+      <a class="btn ghost" href="today.html" style="text-align:center;text-decoration:none;line-height:1.2;padding-top:14px">운세도 보기</a>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+  <script>
+  (function () {
+    window.SiteNav.mount('card');
+    var SE = window.SajuEngine;
+    var today = SE.todayDateStr();
+    var day = SE.getDayPillar(today);
+
+    var DECK = [
+      { emoji: '🌱', kw: '새 시작', msg: '미뤄둔 일을 꺼내기에 좋은 흐름입니다.' },
+      { emoji: '🔥', kw: '열정', msg: '에너지가 올라갑니다. 표현을 아끼지 마세요.' },
+      { emoji: '🕊️', kw: '휴식', msg: '속도를 낮추고 회복하는 하루가 이득입니다.' },
+      { emoji: '💬', kw: '대화', msg: '말 한마디가 관계를 풀어줍니다.' },
+      { emoji: '🎯', kw: '집중', msg: '한 가지에만 힘을 모으면 결과가 납니다.' },
+      { emoji: '🌊', kw: '유연', msg: '계획을 조금 비틀어도 괜찮아요.' },
+      { emoji: '💎', kw: '정리', msg: '버릴 것을 버리면 공간이 생깁니다.' },
+      { emoji: '🌈', kw: '기회', msg: '작은 제안도 놓치지 마세요.' },
+      { emoji: '🛡️', kw: '경계', msg: '충동적인 결정은 한 템포 늦추세요.' },
+      { emoji: '🤝', kw: '연대', msg: '혼자보다 함께일 때 힘이 납니다.' },
+      { emoji: '🌙', kw: '직관', msg: '머리보다 느낌이 맞는 날입니다.' },
+      { emoji: '☀️', kw: '자신감', msg: '있는 그대로 나서도 충분합니다.' }
+    ];
+
+    function hash01(str) {
+      var h = 2166136261;
+      for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return ((h >>> 0) % 10000) / 10000;
+    }
+
+    var idx = Math.floor(hash01('card|' + today + '|' + day.pillar) * DECK.length) % DECK.length;
+    var c = DECK[idx];
+    document.getElementById('emoji').textContent = c.emoji;
+    document.getElementById('kw').textContent = c.kw;
+    document.getElementById('msg').textContent = c.msg;
+    document.getElementById('meta').textContent =
+      today.replace(/-/g, '.') + ' · 일주 ' + day.pillar + ' · ' + day.oheng.labelKo;
+
+    var shareText = '🃏 오늘의 카드: ' + c.kw + '\n' + c.msg + '\n' +
+      today.replace(/-/g, '.') + ' · ' + day.pillar + '\nhttps://saju.kaltaelee.com/tools/daily-card.html';
+
+    document.getElementById('btn-copy').addEventListener('click', function () {
+      navigator.clipboard.writeText(shareText).then(function () {
+        document.getElementById('toast').textContent = '복사됐어요!';
+      }).catch(function () {
+        document.getElementById('toast').textContent = '복사에 실패했어요';
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

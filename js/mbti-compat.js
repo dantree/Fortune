@@ -40,6 +40,15 @@
     return Math.min(94, score);
   }
 
+  function lookupBase(a, b) {
+    var ab = BASE[a] && BASE[a][b];
+    var ba = BASE[b] && BASE[b][a];
+    if (ab != null && ba != null) return Math.round((ab + ba) / 2);
+    if (ab != null) return ab;
+    if (ba != null) return ba;
+    return null;
+  }
+
   function buildMatrix() {
     var matrix = {};
     TYPES.forEach(function (a) {
@@ -49,7 +58,7 @@
           matrix[a][b] = 75;
           return;
         }
-        var v = (BASE[a] && BASE[a][b]) || (BASE[b] && BASE[b][a]);
+        var v = lookupBase(a, b);
         matrix[a][b] = v != null ? v : deterministicScore(a, b);
       });
     });

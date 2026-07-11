@@ -3,142 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="사주·오행·MBTI·띠 궁합 무료 도구. 만세력 기준 결정론적 계산.">
-  <title>사주 도구 | saju.kaltaelee.com</title>
+  <meta name="description" content="오늘의 운세, 로또, MBTI 궁합, 일주·시주. 만세력 기준 무료 사주 도구.">
+  <title>사주 도구 | 오늘 운세·궁합·일주</title>
   <script src="config.js"></script>
+  <script src="js/saju-engine.js"></script>
+  <script src="js/site.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9648839818105934" crossorigin="anonymous"></script>
   <style>
     :root {
-      --bg: #f5f3ff;
+      --bg: #f3f0ff;
       --surface: #fff;
       --text: #1a1a2e;
       --muted: #6b7280;
       --primary: #6b4eff;
-      --radius: 14px;
-      --shadow: 0 4px 24px rgba(107, 78, 255, 0.12);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-      background: var(--bg);
+      background:
+        radial-gradient(ellipse at top, #ebe4ff 0%, transparent 55%),
+        var(--bg);
       color: var(--text);
       min-height: 100dvh;
-      line-height: 1.6;
+      line-height: 1.5;
     }
-    .wrap {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 24px 16px 80px;
+    .wrap { max-width: 480px; margin: 0 auto; padding: 16px 16px 28px; }
+    .hook {
+      border-radius: 20px;
+      padding: 20px 18px 18px;
+      margin-bottom: 10px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,255,255,.25), transparent 42%),
+        linear-gradient(150deg, #4c1d95, #6b4eff 50%, #7c3aed);
+      box-shadow: 0 10px 28px rgba(76, 29, 149, .25);
     }
-    h1 {
-      font-size: 26px;
-      font-weight: 800;
-      text-align: center;
-      background: linear-gradient(135deg, var(--primary), #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
-    }
-    .sub {
-      text-align: center;
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 28px;
-    }
-    .ad-slot { min-height: 90px; margin-bottom: 20px; border-radius: var(--radius); }
-    .ad-slot ins.adsbygoogle { display: block; min-height: 90px; }
-    .tools { display: flex; flex-direction: column; gap: 12px; }
-    .tool-card {
-      display: block;
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-      box-shadow: var(--shadow);
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.15s;
-    }
-    .tool-card:active { transform: scale(0.98); }
-    .tool-card h2 { font-size: 17px; margin-bottom: 4px; }
-    .tool-card p { font-size: 13px; color: var(--muted); }
-    .tool-card .tag {
+    .hook-kicker { font-size: 11px; font-weight: 700; opacity: .8; }
+    .hook h1 { font-size: 22px; font-weight: 800; margin: 6px 0 10px; line-height: 1.3; }
+    .hook-day {
       display: inline-block;
-      margin-top: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--primary);
-      background: #ede9fe;
-      padding: 3px 8px;
-      border-radius: 6px;
+      font-size: 13px; font-weight: 700;
+      background: rgba(255,255,255,.18);
+      padding: 6px 11px; border-radius: 999px; margin-bottom: 12px;
     }
+    .hook-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .hook-btn {
+      display: block; text-align: center; text-decoration: none;
+      padding: 12px 10px; border-radius: 12px; font-weight: 800; font-size: 13px;
+    }
+    .hook-btn.primary { background: #fff; color: #4c1d95; }
+    .hook-btn.ghost { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+    .quick-link {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding: 12px 14px;
+      background: #fff; border-radius: 12px; text-decoration: none; color: inherit;
+      box-shadow: 0 4px 16px rgba(107,78,255,.1); font-size: 14px; font-weight: 700;
+    }
+    .quick-link span { color: var(--muted); font-weight: 500; font-size: 12px; }
+    .ad-slot { display: none; margin: 16px 0 0; border-radius: 12px; overflow: hidden; }
+    .ad-slot.filled { display: block; }
     .notice {
-      margin-top: 28px;
-      padding: 14px 16px;
-      background: #ede9fe;
-      border-radius: var(--radius);
-      font-size: 12px;
-      color: #4c1d95;
-      line-height: 1.7;
+      margin-top: 18px; padding: 12px 14px;
+      background: rgba(237, 233, 254, .85);
+      border-radius: 12px; font-size: 11px; color: #5b21b6; line-height: 1.65;
     }
-    footer {
-      text-align: center;
-      margin-top: 28px;
-      font-size: 12px;
-      color: var(--muted);
-    }
+    footer { text-align: center; margin-top: 18px; font-size: 12px; color: var(--muted); }
     footer a { color: var(--primary); text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>🔮 사주 도구</h1>
-    <p class="sub">만세력 기준 · 결정론적 계산<br>같은 입력 → 항상 같은 결과</p>
+    <div id="site-top"></div>
+
+    <section class="hook">
+      <div class="hook-kicker">TODAY · 만세력</div>
+      <h1>오늘 내 흐름,<br>한눈에 볼까요?</h1>
+      <div class="hook-day" id="hook-day">…</div>
+      <div class="hook-row">
+        <a class="hook-btn primary" href="tools/today.html">☀️ 운세</a>
+        <a class="hook-btn ghost" href="tools/today.html#lotto">🎱 로또</a>
+      </div>
+    </section>
+
+    <a class="quick-link" href="tools/daily-card.html">
+      🃏 오늘의 카드 뽑기
+      <span>키워드 한 장 →</span>
+    </a>
+
+    <nav id="site-hub" class="site-hub" aria-label="도구 목록"></nav>
 
     <div id="ad-top" class="ad-slot"></div>
 
-    <nav class="tools">
-      <a class="tool-card" href="mbti-oheng.html">
-        <h2>✨ MBTI × 오행 궁합</h2>
-        <p>생년월일 + MBTI로 보는 하이브리드 궁합 테스트</p>
-        <span class="tag">인기 · 30초 결과</span>
-      </a>
-      <a class="tool-card" href="tools/ilju.html">
-        <h2>📅 내 일주 찾기</h2>
-        <p>생년월일로 일주(日柱)·년주·띠·일간 오행 확인</p>
-        <span class="tag">만세력 JDN</span>
-      </a>
-      <a class="tool-card" href="tools/ddi-compat.html">
-        <h2>🐉 띠 궁합</h2>
-        <p>입춘 기준 사주년 띠로 삼합·육합·충 궁합 보기</p>
-        <span class="tag">12×12 고정표</span>
-      </a>
-      <a class="tool-card" href="tests/verify.html">
-        <h2>🧪 계산 검증</h2>
-        <p>엔진 자가 테스트 · 회귀 검증 케이스 확인</p>
-        <span class="tag">개발자용</span>
-      </a>
-    </nav>
-
     <div class="notice">
-      <strong>계산 기준</strong><br>
-      양력(그레고리력) · 년주는 입춘(2월 4일) 기준 · 일주는 JDN 만세력 공식<br>
-      시주·음력 미지원 · 랜덤·API 없음 (브라우저 로컬 계산)
+      양력·음력(KARI) · 입춘 2/4 · 시주 오서둔 · 같은 입력=같은 결과<br>
+      로또는 오락용이며 당첨을 보장하지 않습니다.
     </div>
 
     <footer>
       <a href="https://kaltaelee.com" target="_blank" rel="noopener">kaltaelee.com</a> ·
-      <a href="docs/CALCULATION.md" target="_blank" rel="noopener">계산 기준 문서</a>
+      <a href="docs/CALCULATION.md">계산 기준</a> ·
+      <a href="tests/verify.html">검증</a>
     </footer>
   </div>
   <script>
   (function () {
+    window.SiteNav.mount('home');
+    var SE = window.SajuEngine;
+    var today = SE.todayDateStr();
+    var day = SE.getDayPillar(today);
+    document.getElementById('hook-day').textContent =
+      today.replace(/-/g, '.') + ' · ' + day.pillar + ' · ' + day.oheng.icon + ' ' + day.oheng.labelKo;
+
     var cfg = (window.FORTUNE_CONFIG || {}).adsense;
     if (!cfg || !cfg.enabled || !cfg.slots.top) return;
     var el = document.getElementById('ad-top');
     el.innerHTML = '<ins class="adsbygoogle" style="display:block" data-ad-client="' + cfg.client +
       '" data-ad-slot="' + cfg.slots.top + '" data-ad-format="auto" data-full-width-responsive="true"></ins>';
     try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    /* 광고가 실제로 채워졌을 때만 공간 확보 */
+    var tries = 0;
+    var timer = setInterval(function () {
+      tries++;
+      var ins = el.querySelector('ins.adsbygoogle');
+      var filled = ins && (ins.getAttribute('data-ad-status') === 'filled' || el.offsetHeight > 20);
+      if (filled) {
+        el.classList.add('filled');
+        clearInterval(timer);
+      } else if (tries > 20) {
+        clearInterval(timer);
+      }
+    }, 500);
   })();
   </script>
 </body>

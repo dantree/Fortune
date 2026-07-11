@@ -3,89 +3,247 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="생년월일로 일주(日柱), 년주, 띠, 일간 오행을 확인하세요. 만세력 JDN 기준.">
+  <meta name="description" content="내 일주의 의미, 상생 관계, 잘 맞는 오행·띠까지 재미있게 풀어드립니다.">
   <title>내 일주 찾기 | 사주 도구</title>
   <script src="../config.js"></script>
+  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
+  <script src="../js/birth-date.js"></script>
   <script src="../js/saju-engine.js"></script>
+  <script src="../js/ilju-story.js"></script>
+  <script src="../js/site.js"></script>
   <style>
     :root {
       --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
       --primary: #6b4eff; --radius: 14px; --shadow: 0 4px 24px rgba(107,78,255,.12);
-      --wood:#4caf50; --fire:#f44336; --earth:#ffc107; --metal:#78909c; --water:#2196f3;
+      --wood:#4caf50; --fire:#f44336; --earth:#eab308; --metal:#64748b; --water:#2196f3;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
-    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 60px; }
-    .back { font-size: 13px; color: var(--muted); text-decoration: none; display: block; margin-bottom: 12px; }
+    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 28px; }
     h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-    .hero { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-    .card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
-    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    input[type=date] { width: 100%; padding: 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 16px; }
-    .btn { width: 100%; padding: 14px; margin-top: 12px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, var(--primary), #9333ea); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .hero { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); margin-bottom: 12px; }
+    label.field-label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input[type=date], input[type=time] { width: 100%; padding: 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 16px; margin-bottom: 12px; }
+    .hint { font-size: 12px; color: var(--muted); margin: -6px 0 12px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, var(--primary), #9333ea); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
     .result { display: none; }
     .result.show { display: block; }
-    .pillar-big { font-size: 48px; font-weight: 900; text-align: center; margin: 12px 0; letter-spacing: 4px; }
-    .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    .hero-ilju {
+      border-radius: 18px; padding: 22px 18px; text-align: center; color: #fff; margin-bottom: 12px;
+      background: linear-gradient(150deg, #4c1d95, #6b4eff 55%, #7c3aed);
+      box-shadow: 0 10px 28px rgba(76,29,149,.28);
+    }
+    .hero-ilju .pillar { font-size: 42px; font-weight: 900; letter-spacing: 4px; }
+    .hero-ilju .nick { font-size: 16px; font-weight: 800; margin-top: 6px; opacity: .95; }
+    .hero-ilju .vibe { font-size: 13px; margin-top: 4px; opacity: .8; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+    .tags span { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.2); }
+    .pillars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+    .pillars.three { grid-template-columns: 1fr 1fr 1fr; }
+    .p-box { text-align: center; padding: 10px 6px; background: #fafafa; border-radius: 10px; }
+    .p-box .k { font-size: 11px; color: var(--muted); }
+    .p-box .v { font-size: 20px; font-weight: 800; margin-top: 2px; }
+    .row { display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
     .row:last-child { border: none; }
-    .row span:first-child { color: var(--muted); }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; }
-    .badge.wood{background:var(--wood)} .badge.fire{background:var(--fire)} .badge.earth{background:var(--earth);color:#333}
+    .row span:first-child { color: var(--muted); flex-shrink: 0; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; }
+    .badge.wood{background:var(--wood)} .badge.fire{background:var(--fire)} .badge.earth{background:var(--earth);color:#1a1a2e}
     .badge.metal{background:var(--metal)} .badge.water{background:var(--water)}
-    .desc { font-size: 14px; line-height: 1.7; color: #374151; margin-top: 12px; padding: 12px; background: #fafafa; border-radius: 10px; }
-    footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 20px; line-height: 1.8; }
+    .sec-title { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+    .story { font-size: 14px; line-height: 1.75; color: #374151; }
+    .qa { padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
+    .qa:last-child { border: none; padding-bottom: 0; }
+    .qa .q { font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .qa .a { font-size: 14px; line-height: 1.65; color: #374151; }
+    .rel-grid { display: grid; gap: 8px; }
+    .rel {
+      padding: 12px; border-radius: 12px; background: #fafafa; font-size: 13px; line-height: 1.6;
+    }
+    .rel b { display: block; margin-bottom: 4px; font-size: 13px; }
+    .rel.good { background: #ecfdf5; }
+    .rel.warn { background: #fff7ed; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chips span { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: #ede9fe; color: #4c1d95; }
+    .cta {
+      display: block; text-align: center; text-decoration: none; margin-top: 8px;
+      padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px;
+      background: #ede9fe; color: #4c1d95;
+    }
+    .note { font-size: 12px; color: #92400e; background: #fffbeb; padding: 10px 12px; border-radius: 10px; margin-top: 8px; line-height: 1.6; }
+    .meta-tiny { font-size: 12px; color: var(--muted); text-align: center; margin: 8px 0 4px; line-height: 1.5; }
+    footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 18px; line-height: 1.8; }
     footer a { color: var(--primary); text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="app">
-    <a class="back" href="../index.html">← 사주 도구 홈</a>
+    <div id="site-top"></div>
     <h1>📅 내 일주 찾기</h1>
-    <p class="hero">양력 생년월일로 일주·년주·띠를 확인합니다</p>
+    <p class="hero">일주 의미 · 상생 · 잘 맞는 기운까지 풀어드려요</p>
 
     <div class="card">
-      <label for="birth">생년월일</label>
-      <input type="date" id="birth" min="1900-01-01">
-      <button type="button" class="btn" id="btn-go">일주 확인</button>
+      <label class="field-label">달력</label>
+      <div id="cal-mount"></div>
+      <label class="field-label" for="birth">생년월일</label>
+      <input type="date" id="birth" min="1900-01-01" max="2050-12-31">
+      <label class="field-label" for="birth-time">출생시간 (선택)</label>
+      <input type="time" id="birth-time">
+      <p class="hint">음력이면 윤달도 체크. 시간을 넣으면 시주까지 나옵니다.</p>
+      <button type="button" class="btn" id="btn-go">내 일주 풀어보기</button>
     </div>
 
-    <div class="card result" id="result">
-      <div class="pillar-big" id="day-pillar">—</div>
-      <div class="row"><span>일간 오행</span><span id="day-oheng">—</span></div>
-      <div class="row"><span>년주</span><span id="year-pillar">—</span></div>
-      <div class="row"><span>띠 (입춘 기준)</span><span id="animal">—</span></div>
-      <div class="row"><span>사주년</span><span id="saju-year">—</span></div>
-      <div class="desc" id="day-desc"></div>
+    <div class="result" id="result">
+      <div class="hero-ilju" id="hero-ilju">
+        <div class="pillar" id="day-pillar">—</div>
+        <div class="nick" id="day-nick"></div>
+        <div class="vibe" id="day-vibe"></div>
+        <div class="tags" id="day-tags"></div>
+      </div>
+
+      <div class="card">
+        <div class="pillars" id="pillar-grid"></div>
+        <div class="row"><span>일간 오행</span><span id="day-oheng">—</span></div>
+        <div class="row"><span>띠 (입춘)</span><span id="animal">—</span></div>
+        <div class="row" id="hour-row" style="display:none"><span>시주</span><span id="hour-info">—</span></div>
+        <p class="meta-tiny" id="input-meta"></p>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">✨ 이 일주는 이런 사람</div>
+        <p class="story" id="day-story"></p>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">💬 사람들이 제일 궁금해하는 것</div>
+        <div id="curiosities"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">🔄 상생 · 상극 한눈에</div>
+        <div class="rel-grid" id="relations"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">💕 누구랑 잘 맞을까?</div>
+        <p class="story" id="match-text"></p>
+        <div class="chips" id="match-chips"></div>
+        <p class="story" id="match-year" style="margin-top:10px;color:#6b7280;font-size:13px"></p>
+        <a class="cta" href="ddi-compat.html">🐉 띠 궁합으로 바로 확인</a>
+        <a class="cta" href="../mbti-oheng.html" style="margin-top:8px;background:#f3f4f6;color:#374151">✨ MBTI × 오행 궁합도 보기</a>
+      </div>
+
+      <div class="card" id="hour-card" style="display:none">
+        <div class="sec-title">⏰ 시주 메모</div>
+        <p class="story" id="hour-desc"></p>
+        <div class="note" id="zi-note" style="display:none"></div>
+      </div>
     </div>
 
     <footer>
-      만세력 JDN v<span id="ver"></span> · 입춘 2/4 · <a href="../docs/CALCULATION.md">계산 기준</a>
+      만세력 JDN v<span id="ver"></span> · 음력 KARI · <a href="../docs/CALCULATION.md">계산 기준</a>
     </footer>
   </div>
   <script>
   (function () {
+    window.SiteNav.mount('ilju');
     var SE = window.SajuEngine;
+    var BD = window.BirthDate;
+    var IS = window.IljuStory;
     document.getElementById('ver').textContent = SE.VERSION;
     var birth = document.getElementById('birth');
-    birth.max = new Date().toISOString().slice(0, 10);
+    var timeEl = document.getElementById('birth-time');
+    birth.max = SE.todayDateStr();
+
+    var field = BD.enhance({
+      name: 'ilju-cal',
+      dateInput: birth,
+      mountEl: document.getElementById('cal-mount')
+    });
+
+    var saved = BD.loadBirth();
+    if (saved) BD.applySaved(field, birth, saved);
+
+    function badge(oh) {
+      return '<span class="badge ' + oh.type + '">' + oh.icon + ' ' + oh.labelKo + '(' + oh.hanja + ')</span>';
+    }
 
     function show() {
-      var d = birth.value;
-      if (!d) return;
-      var s = SE.getFullSaju(d);
-      var oh = s.day.oheng;
+      var v = field.getValue();
+      if (!v.ok) return;
+      var t = timeEl.value || null;
+      var s = SE.getFullSaju(v.solar, t);
+      var story = IS.getIljuStory(s);
+
       document.getElementById('day-pillar').textContent = s.day.pillar;
-      document.getElementById('day-oheng').innerHTML =
-        '<span class="badge ' + oh.type + '">' + oh.icon + ' ' + oh.labelKo + '(' + oh.hanja + ')</span>';
-      document.getElementById('year-pillar').textContent = s.year.pillar + '년';
-      document.getElementById('animal').textContent = s.year.animal + '띠 (' + s.year.animalBranch + ')';
-      document.getElementById('saju-year').textContent = s.year.sajuYear + '년';
-      document.getElementById('day-desc').textContent = s.day.description;
+      document.getElementById('day-nick').textContent = story.nick;
+      document.getElementById('day-vibe').textContent = '“' + story.vibe + '”';
+      document.getElementById('day-tags').innerHTML = story.keywords.map(function (k) {
+        return '<span>#' + k + '</span>';
+      }).join('');
+
+      document.getElementById('day-oheng').innerHTML = badge(s.day.oheng);
+      document.getElementById('animal').textContent = s.year.animal + '띠';
+      document.getElementById('input-meta').textContent =
+        (v.calendar === 'lunar' ? '음력 ' : '양력 ') + v.date.replace(/-/g, '.') +
+        (v.leap ? ' 윤' : '') + ' → 양력 ' + v.solar.replace(/-/g, '.') +
+        ' · 사주년 ' + s.year.sajuYear;
+
+      var grid = document.getElementById('pillar-grid');
+      if (s.hour) {
+        grid.className = 'pillars three';
+        grid.innerHTML =
+          '<div class="p-box"><div class="k">년주</div><div class="v">' + s.year.pillar + '</div></div>' +
+          '<div class="p-box"><div class="k">일주</div><div class="v">' + s.day.pillar + '</div></div>' +
+          '<div class="p-box"><div class="k">시주</div><div class="v">' + s.hour.pillar + '</div></div>';
+        document.getElementById('hour-row').style.display = 'flex';
+        document.getElementById('hour-info').textContent = s.hour.pillar + ' · ' + s.hour.label;
+        document.getElementById('hour-card').style.display = 'block';
+        document.getElementById('hour-desc').textContent =
+          '태어난 시진 ' + s.hour.label + ' → 시주 ' + s.hour.pillar +
+          ' (' + s.hour.oheng.labelKo + '). 하루의 “표현 방식”에 가까운 기운이에요.';
+        var zn = document.getElementById('zi-note');
+        if (s.hour.ziNextDay) {
+          zn.style.display = 'block';
+          zn.textContent = '23시 이후 자시: 일주를 다음날(' + s.hour.effectiveDay + ') 기준으로 계산했습니다.';
+        } else zn.style.display = 'none';
+      } else {
+        grid.className = 'pillars';
+        grid.innerHTML =
+          '<div class="p-box"><div class="k">년주</div><div class="v">' + s.year.pillar + '</div></div>' +
+          '<div class="p-box"><div class="k">일주</div><div class="v">' + s.day.pillar + '</div></div>';
+        document.getElementById('hour-row').style.display = 'none';
+        document.getElementById('hour-card').style.display = 'none';
+      }
+
+      document.getElementById('day-story').textContent = story.story;
+
+      document.getElementById('curiosities').innerHTML = story.curiosities.map(function (c) {
+        return '<div class="qa"><div class="q">' + c.q + '</div><div class="a">' + c.a + '</div></div>';
+      }).join('');
+
+      var R = story.relations;
+      document.getElementById('relations').innerHTML =
+        '<div class="rel good"><b>🌱 ' + R.generatedBy.title + '</b>' + R.generatedBy.text + '</div>' +
+        '<div class="rel good"><b>🔥 ' + R.generates.title + '</b>' + R.generates.text + '</div>' +
+        '<div class="rel warn"><b>⚡ ' + R.controlledBy.title + '</b>' + R.controlledBy.text + '</div>' +
+        '<div class="rel warn"><b>🗡️ ' + R.controls.title + '</b>' + R.controls.text + '</div>';
+
+      document.getElementById('match-text').textContent =
+        '오행으로 보면 ' + story.match.bestOhengLabel + ' 기운과 상생 케미가 좋아요. ' +
+        '띠로는 육합·삼합인 ' + story.match.bestAnimals.join('·') + '띠가 편하고, ' +
+        story.match.cautionAnimal + '띠와는 자극(충)이 올 수 있어요.';
+      document.getElementById('match-chips').innerHTML =
+        story.match.bestStems.map(function (st) { return '<span>일간 ' + st + '</span>'; }).join('') +
+        story.match.bestAnimals.map(function (a) { return '<span>' + a + '띠</span>'; }).join('');
+      document.getElementById('match-year').textContent = story.match.yearNote;
+
+      try { BD.saveBirth(v); } catch (e) {}
       document.getElementById('result').classList.add('show');
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     document.getElementById('btn-go').addEventListener('click', show);
-    birth.addEventListener('change', show);
   })();
   </script>
 </body>

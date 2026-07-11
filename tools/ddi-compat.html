@@ -6,8 +6,11 @@
   <meta name="description" content="입춘 기준 사주년 띠로 삼합·육합·충 궁합을 확인하세요.">
   <title>띠 궁합 | 사주 도구</title>
   <script src="../config.js"></script>
+  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
+  <script src="../js/birth-date.js"></script>
   <script src="../js/saju-engine.js"></script>
   <script src="../js/zodiac-compat.js"></script>
+  <script src="../js/site.js"></script>
   <style>
     :root {
       --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
@@ -15,8 +18,7 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
-    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 60px; }
-    .back { font-size: 13px; color: var(--muted); text-decoration: none; display: block; margin-bottom: 12px; }
+    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 24px; }
     h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
     .hero { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
     .card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
@@ -29,7 +31,7 @@
     .pair { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
     .rel { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600; background: #ede9fe; color: #4c1d95; margin-bottom: 16px; }
     .rel.chung { background: #fee2e2; color: #991b1b; }
-    .rel.yukhap, .rel.samhap { background: #dcfce7; color: #166534; }
+    .rel.yukhap { background: #dcfce7; color: #166534; }
     .detail { text-align: left; font-size: 14px; line-height: 1.7; color: #374151; padding: 14px; background: #fafafa; border-radius: 10px; }
     footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 20px; }
     footer a { color: var(--primary); text-decoration: none; }
@@ -37,15 +39,19 @@
 </head>
 <body>
   <div class="app">
-    <a class="back" href="../index.html">← 사주 도구 홈</a>
+    <div id="site-top"></div>
     <h1>🐉 띠 궁합</h1>
     <p class="hero">입춘(2/4) 기준 사주년 띠로 궁합을 봅니다</p>
 
     <div class="card">
+      <label>나 · 달력</label>
+      <div id="cal-a"></div>
       <label for="birth-a">나의 생년월일</label>
-      <input type="date" id="birth-a" min="1900-01-01">
+      <input type="date" id="birth-a" min="1900-01-01" max="2050-12-31">
+      <label>상대 · 달력</label>
+      <div id="cal-b"></div>
       <label for="birth-b">상대 생년월일</label>
-      <input type="date" id="birth-b" min="1900-01-01">
+      <input type="date" id="birth-b" min="1900-01-01" max="2050-12-31">
       <button type="button" class="btn" id="btn-go">띠 궁합 보기</button>
     </div>
 
@@ -60,11 +66,24 @@
   </div>
   <script>
   (function () {
+    window.SiteNav.mount('ddi');
     var SE = window.SajuEngine;
     var ZC = window.ZodiacCompat;
-    var max = new Date().toISOString().slice(0, 10);
+    var BD = window.BirthDate;
+    var max = SE.todayDateStr();
     document.getElementById('birth-a').max = max;
     document.getElementById('birth-b').max = max;
+
+    var fieldA = BD.enhance({
+      name: 'ddi-a',
+      dateInput: document.getElementById('birth-a'),
+      mountEl: document.getElementById('cal-a')
+    });
+    var fieldB = BD.enhance({
+      name: 'ddi-b',
+      dateInput: document.getElementById('birth-b'),
+      mountEl: document.getElementById('cal-b')
+    });
 
     var DETAIL = {
       '육합': '서로 끌리는 육합(六合) 관계입니다. 자연스럽게 맞아떨어지는 조합이에요.',
@@ -75,11 +94,11 @@
     };
 
     function show() {
-      var da = document.getElementById('birth-a').value;
-      var db = document.getElementById('birth-b').value;
-      if (!da || !db) return;
-      var ya = SE.getYearPillar(da);
-      var yb = SE.getYearPillar(db);
+      var va = fieldA.getValue();
+      var vb = fieldB.getValue();
+      if (!va.ok || !vb.ok) return;
+      var ya = SE.getYearPillar(va.solar);
+      var yb = SE.getYearPillar(vb.solar);
       var biA = SE.BRANCHES.indexOf(ya.branch);
       var biB = SE.BRANCHES.indexOf(yb.branch);
       var c = ZC.getCompat(biA, biB);
@@ -90,7 +109,8 @@
       relEl.textContent = c.label;
       relEl.className = 'rel' + (c.type === '충' ? ' chung' : (c.type === '육합' || c.type === '삼합' ? ' yukhap' : ''));
       document.getElementById('detail').textContent =
-        ya.animal + '띠(' + ya.pillar + '년)와 ' + yb.animal + '띠(' + yb.pillar + '년) — ' +
+        ya.animal + '띠(년주 ' + ya.pillar + ', 양력 ' + va.solar.replace(/-/g, '.') + ')와 ' +
+        yb.animal + '띠(년주 ' + yb.pillar + ', 양력 ' + vb.solar.replace(/-/g, '.') + ') — ' +
         (DETAIL[c.type] || DETAIL['보통']);
       document.getElementById('result').classList.add('show');
     }

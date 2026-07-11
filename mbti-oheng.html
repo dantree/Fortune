@@ -6,8 +6,11 @@
   <meta name="description" content="생년월일과 MBTI로 보는 하이브리드 궁합. 30초 만에 궁합 % 확인.">
   <title>MBTI × 사주 오행 궁합 테스트 | 무료 궁합 점수</title>
   <script src="config.js"></script>
+  <script src="js/vendor/korean-lunar-calendar.min.js"></script>
+  <script src="js/birth-date.js"></script>
   <script src="js/saju-engine.js"></script>
   <script src="js/mbti-compat.js"></script>
+  <script src="js/site.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9648839818105934" crossorigin="anonymous"></script>
   <style>
     :root {
@@ -39,18 +42,21 @@
     .app {
       max-width: 480px;
       margin: 0 auto;
-      padding: 16px 16px 100px;
+      padding: 12px 16px 100px;
     }
 
     .ad-slot {
-      min-height: 90px;
+      display: none;
       border-radius: var(--radius);
       margin-bottom: 16px;
+      overflow: hidden;
     }
 
-    .ad-slot.hidden { display: none; min-height: 0; margin: 0; padding: 0; border: none; }
+    .ad-slot.filled { display: block; }
 
-    .ad-slot ins.adsbygoogle { display: block; min-height: 90px; }
+    .ad-slot.hidden { display: none !important; margin: 0; }
+
+    .ad-slot ins.adsbygoogle { display: block; }
 
     .header {
       text-align: center;
@@ -70,7 +76,7 @@
       text-align: center;
       color: var(--text-muted);
       font-size: 14px;
-      margin-bottom: 24px;
+      margin-bottom: 14px;
     }
 
     .card {
@@ -99,7 +105,10 @@
       margin-bottom: 6px;
     }
 
-    .field input, .field .select-btn {
+    .field input[type="date"],
+    .field input[type="time"],
+    .field input[type="text"],
+    .field .select-btn {
       width: 100%;
       padding: 12px 14px;
       border: 1.5px solid #e5e7eb;
@@ -109,14 +118,32 @@
       transition: border-color 0.2s;
     }
 
-    .field input:focus, .select-btn:focus {
+    .field input[type="date"]:focus,
+    .field input[type="time"]:focus,
+    .field input[type="text"]:focus,
+    .select-btn:focus {
       outline: none;
       border-color: var(--primary);
     }
 
-    .field.error input, .field.error .select-btn {
+    .field.error input[type="date"],
+    .field.error input[type="time"],
+    .field.error input[type="text"],
+    .field.error .select-btn {
       border-color: var(--fire);
     }
+
+    /* 양력/음력 토글 — .field label 전역 스타일 덮어쓰기 */
+    .field .bd-cal label {
+      display: flex;
+      margin-bottom: 0;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .field .bd-cal label.active { color: #4c1d95; }
+    .field .bd-leap { display: none; color: #6b7280; margin-bottom: 10px; }
+    .field .bd-leap.show { display: flex; align-items: center; gap: 8px; }
 
     .error-msg {
       color: var(--fire);
@@ -588,17 +615,18 @@
     .screen.active { display: block; }
 
     body.embed .ad-top,
-    body.embed .footer { display: none; }
+    body.embed .footer,
+    body.embed #site-top,
+    body.embed #site-bottom { display: none !important; }
+    body.embed { padding-bottom: 0 !important; }
   </style>
 </head>
 <body>
   <div class="app">
     <!-- SCR-00 Landing -->
     <div id="screen-landing" class="screen active">
-      <div id="ad-top" class="ad-slot ad-top hidden"></div>
-
+      <div id="site-top"></div>
       <header class="header">
-        <p style="font-size:13px;margin-bottom:6px"><a href="index.html" style="color:var(--text-muted);text-decoration:none">← 사주 도구 홈</a></p>
         <h1>✨ MBTI × 오행 궁합</h1>
       </header>
       <p class="hero">생년월일 + MBTI로 보는<br>30초 궁합 테스트</p>
@@ -606,8 +634,10 @@
       <div class="card" id="form-a">
         <div class="card-title">👤 나</div>
         <div class="field" data-field="personA.birthDate">
+          <label>달력</label>
+          <div id="cal-a"></div>
           <label for="birth-a">생년월일</label>
-          <input type="date" id="birth-a" min="1900-01-01">
+          <input type="date" id="birth-a" min="1900-01-01" max="2050-12-31">
           <span class="error-msg">생년월일을 입력해 주세요</span>
         </div>
         <div class="badges" id="badges-a-day"></div>
@@ -622,8 +652,10 @@
       <div class="card" id="form-b">
         <div class="card-title">💕 상대</div>
         <div class="field" data-field="personB.birthDate">
+          <label>달력</label>
+          <div id="cal-b"></div>
           <label for="birth-b">생년월일</label>
-          <input type="date" id="birth-b" min="1900-01-01">
+          <input type="date" id="birth-b" min="1900-01-01" max="2050-12-31">
           <span class="error-msg">생년월일을 입력해 주세요</span>
         </div>
         <div class="badges" id="badges-b-day"></div>
@@ -637,10 +669,12 @@
 
       <button type="button" class="btn-primary" id="btn-submit">🔮 궁합 결과 보기</button>
 
+      <div id="ad-top" class="ad-slot ad-top hidden"></div>
+
       <footer class="footer">
         <a href="https://kaltaelee.com" target="_blank" rel="noopener">kaltaelee.com</a> ·
         <a href="docs/CALCULATION.md" target="_blank" rel="noopener">계산 기준</a><br>
-        양력 기준 · 입춘 2/4 · 일주 JDN v1.0 · 랜덤 없음(결정론)<br>
+        양력·음력 선택 · 입춘 2/4 · 일주 JDN · 랜덤 없음(결정론)<br>
         입력 정보는 브라우저에만 저장되며 서버로 전송되지 않습니다.
       </footer>
     </div>
@@ -829,10 +863,12 @@
     };
 
     const state = {
-      personA: { birthDate: '', mbti: '' },
-      personB: { birthDate: '', mbti: '' },
+      personA: { birthDate: '', solarDate: '', calendar: 'solar', leap: false, mbti: '' },
+      personB: { birthDate: '', solarDate: '', calendar: 'solar', leap: false, mbti: '' },
       modalPerson: null,
-      embed: new URLSearchParams(location.search).get('embed') === '1'
+      embed: new URLSearchParams(location.search).get('embed') === '1',
+      birthFieldA: null,
+      birthFieldB: null
     };
 
     const $ = (sel) => document.querySelector(sel);
@@ -841,6 +877,22 @@
     function getSaju(dateStr) {
       if (!dateStr) return null;
       return SE.getFullSaju(dateStr);
+    }
+
+    function syncBirthFromField(person, fieldApi) {
+      if (!fieldApi) return false;
+      const v = fieldApi.getValue();
+      const data = state['person' + person];
+      data.birthDate = v.date || '';
+      data.calendar = v.calendar || 'solar';
+      data.leap = !!v.leap;
+      data.solarDate = v.ok ? v.solar : '';
+      return v.ok;
+    }
+
+    function solarOf(person) {
+      const data = state['person' + person];
+      return data.solarDate || data.birthDate;
     }
 
     function getDayMaster(dateStr) {
@@ -935,9 +987,12 @@
         `${r.grade.emoji} ${r.score}% — ${r.grade.label}`,
         '',
         `👤 ${a.mbti}(${a.ohengDay.hanja}) × ${b.mbti}(${b.ohengDay.hanja})`,
-        `📅 ${fmt(a.birthDate)} · ${fmt(b.birthDate)}`,
+        `📅 ${a.calendar === 'lunar' ? '음력' : '양력'} ${fmt(a.birthDate)}${a.leap ? '(윤)' : ''} × ${b.calendar === 'lunar' ? '음력' : '양력'} ${fmt(b.birthDate)}${b.leap ? '(윤)' : ''}`,
+        a.calendar === 'lunar' || b.calendar === 'lunar'
+          ? `☀️ 양력 ${fmt(a.solarDate || a.birthDate)} · ${fmt(b.solarDate || b.birthDate)}`
+          : null,
         `🌿 일주 ${a.dayMaster} × ${b.dayMaster}`,
-        `🐉 ${a.animal}띠(${a.yearPillar}) × ${b.animal}띠(${b.yearPillar})`,
+        `🐉 ${a.animal}띠(년주 ${a.yearPillar}) × ${b.animal}띠(년주 ${b.yearPillar})`,
         '',
         '📊 항목별 궁합',
         `💕 연애·호감 ${cat.love}%`,
@@ -968,7 +1023,7 @@
         '🔗 나도 테스트하기',
         r.share.url
       ];
-      return lines.join('\n');
+      return lines.filter(l => l != null).join('\n');
     }
 
     function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -1160,8 +1215,10 @@
     }
 
     function calculate(input) {
-      const aDay = ohengFromDate(input.personA.birthDate);
-      const bDay = ohengFromDate(input.personB.birthDate);
+      const aSolar = input.personA.solarDate || input.personA.birthDate;
+      const bSolar = input.personB.solarDate || input.personB.birthDate;
+      const aDay = ohengFromDate(aSolar);
+      const bDay = ohengFromDate(bSolar);
       const aMbtiOh = ohengFromMbti(input.personA.mbti);
       const bMbtiOh = ohengFromMbti(input.personB.mbti);
 
@@ -1170,11 +1227,14 @@
       const score = Math.round(ohengScore * CONFIG.weights.oheng + mbtiScore * CONFIG.weights.mbti);
       const grade = getGrade(score);
 
-      const sajuA = getSaju(input.personA.birthDate);
-      const sajuB = getSaju(input.personB.birthDate);
+      const sajuA = getSaju(aSolar);
+      const sajuB = getSaju(bSolar);
       const personA = {
         name: '나', mbti: input.personA.mbti,
         birthDate: input.personA.birthDate,
+        solarDate: aSolar,
+        calendar: input.personA.calendar || 'solar',
+        leap: !!input.personA.leap,
         ohengDay: aDay, ohengMbti: aMbtiOh,
         dayMaster: sajuA.day.pillar,
         yearPillar: sajuA.year.pillar,
@@ -1184,6 +1244,9 @@
       const personB = {
         name: '상대', mbti: input.personB.mbti,
         birthDate: input.personB.birthDate,
+        solarDate: bSolar,
+        calendar: input.personB.calendar || 'solar',
+        leap: !!input.personB.leap,
         ohengDay: bDay, ohengMbti: bMbtiOh,
         dayMaster: sajuB.day.pillar,
         yearPillar: sajuB.year.pillar,
@@ -1223,7 +1286,8 @@
       const data = state['person' + person];
       const dayEl = $('#badges-' + suffix + '-day');
       const mbtiEl = $('#badges-' + suffix + '-mbti');
-      dayEl.innerHTML = data.birthDate ? badgeHtml(ohengFromDate(data.birthDate), '일간 ') : '';
+      const solar = data.solarDate || data.birthDate;
+      dayEl.innerHTML = solar ? badgeHtml(ohengFromDate(solar), '일간 ') : '';
       mbtiEl.innerHTML = data.mbti ? badgeHtml(ohengFromMbti(data.mbti), 'MBTI ') : '';
     }
 
@@ -1245,6 +1309,22 @@
         try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
         el.dataset.adMounted = '1';
       });
+      /* 광고가 실제로 채워졌을 때만 공간 확보 */
+      let tries = 0;
+      const timer = setInterval(() => {
+        tries++;
+        const ins = el.querySelector('ins.adsbygoogle');
+        const filled = ins && (ins.getAttribute('data-ad-status') === 'filled' || el.offsetHeight > 20);
+        if (filled) {
+          el.classList.add('filled');
+          clearInterval(timer);
+          notifyResize();
+        } else if (tries > 20) {
+          el.classList.add('hidden');
+          clearInterval(timer);
+          notifyResize();
+        }
+      }, 500);
     }
 
     function showScreen(id) {
@@ -1289,7 +1369,11 @@
           bdField.classList.add('error');
           bdField.querySelector('.error-msg').textContent = '생년월일을 입력해 주세요';
           ok = false;
-        } else if (data.birthDate > today) {
+        } else if (!data.solarDate) {
+          bdField.classList.add('error');
+          bdField.querySelector('.error-msg').textContent = '음력 날짜를 확인해 주세요 (윤달·일수)';
+          ok = false;
+        } else if (data.solarDate > today) {
           bdField.classList.add('error');
           bdField.querySelector('.error-msg').textContent = '미래 날짜는 입력할 수 없습니다';
           ok = false;
@@ -1371,14 +1455,16 @@
           <div class="mbti">${r.personA.mbti}</div>
           <div class="badges">${badgeHtml(r.personA.ohengDay, '')}</div>
           <div class="date">${fmt(r.personA.birthDate)} · 일주 ${r.personA.dayMaster}</div>
-          <div class="date">${r.personA.yearPillar}년 · ${r.personA.animal}띠</div>
+          <div class="date">${r.personA.calendar === 'lunar' ? '음력' : '양력'}${r.personA.leap ? '(윤)' : ''} → ${fmt(r.personA.solarDate || r.personA.birthDate)}</div>
+          <div class="date">년주 ${r.personA.yearPillar} · ${r.personA.animal}띠</div>
         </div>
         <div class="pair-heart">♥</div>
         <div class="pair-person">
           <div class="mbti">${r.personB.mbti}</div>
           <div class="badges">${badgeHtml(r.personB.ohengDay, '')}</div>
           <div class="date">${fmt(r.personB.birthDate)} · 일주 ${r.personB.dayMaster}</div>
-          <div class="date">${r.personB.yearPillar}년 · ${r.personB.animal}띠</div>
+          <div class="date">${r.personB.calendar === 'lunar' ? '음력' : '양력'}${r.personB.leap ? '(윤)' : ''} → ${fmt(r.personB.solarDate || r.personB.birthDate)}</div>
+          <div class="date">년주 ${r.personB.yearPillar} · ${r.personB.animal}띠</div>
         </div>`;
 
       const blogTitle = `${r.personA.ohengDay.labelKo}(${r.personA.ohengDay.hanja})×${r.personB.ohengDay.labelKo}(${r.personB.ohengDay.hanja}) 궁합 해설`;
@@ -1425,14 +1511,11 @@
     }
 
     function initEvents() {
-      $('#birth-a').addEventListener('change', e => {
-        state.personA.birthDate = e.target.value;
-        renderBadges('A');
-      });
-      $('#birth-b').addEventListener('change', e => {
-        state.personB.birthDate = e.target.value;
-        renderBadges('B');
-      });
+      const onBirthChange = (person) => {
+        const api = person === 'A' ? state.birthFieldA : state.birthFieldB;
+        syncBirthFromField(person, api);
+        renderBadges(person);
+      };
 
       $$('.select-btn').forEach(btn => {
         btn.addEventListener('click', () => openMbtiModal(btn.dataset.person));
@@ -1444,13 +1527,16 @@
       });
 
       $('#btn-submit').addEventListener('click', () => {
-        state.personA.birthDate = $('#birth-a').value;
-        state.personB.birthDate = $('#birth-b').value;
+        syncBirthFromField('A', state.birthFieldA);
+        syncBirthFromField('B', state.birthFieldB);
         if (!validate()) return;
         saveInput();
         location.hash = '#/loading';
         runLoading();
       });
+
+      // birth fields wired in init via BirthDate.enhance onChange
+      state._onBirthChange = onBirthChange;
 
       $('#btn-copy-text').addEventListener('click', async () => {
         const r = window.__lastResult;
@@ -1593,10 +1679,25 @@
 
     function init() {
       if (state.embed) document.body.classList.add('embed');
+      else if (window.SiteNav) window.SiteNav.mount('mbti-oheng');
 
       const maxDate = new Date().toISOString().slice(0, 10);
       $('#birth-a').max = maxDate;
       $('#birth-b').max = maxDate;
+
+      const BD = window.BirthDate;
+      state.birthFieldA = BD.enhance({
+        name: 'mbti-a',
+        dateInput: $('#birth-a'),
+        mountEl: $('#cal-a'),
+        onChange: () => state._onBirthChange && state._onBirthChange('A')
+      });
+      state.birthFieldB = BD.enhance({
+        name: 'mbti-b',
+        dateInput: $('#birth-b'),
+        mountEl: $('#cal-b'),
+        onChange: () => state._onBirthChange && state._onBirthChange('B')
+      });
 
       initMbtiGrid();
       initEvents();

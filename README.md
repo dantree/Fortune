@@ -8,11 +8,14 @@
 
 | 도구 | 경로 |
 |------|------|
-| 홈 (허브) | `/index.html` |
+| 홈 (후킹·메뉴) | `/index.html` |
+| 오늘의 운세 · 로또 | `/tools/today.html` |
 | MBTI × 오행 궁합 | `/mbti-oheng.html` |
-| 내 일주 찾기 | `/tools/ilju.html` |
+| 내 일주 · 시주 | `/tools/ilju.html` |
 | 띠 궁합 | `/tools/ddi-compat.html` |
 | 계산 검증 | `/tests/verify.html` |
+
+새 도구 추가: `js/site.js`의 `TOOLS` 배열에 항목을 넣고 `tools/`에 페이지를 만들면 홈·하단 메뉴에 자동 반영됩니다.
 
 ## 로컬 미리보기
 

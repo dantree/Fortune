@@ -4,15 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>계산 검증 | 사주 도구</title>
+  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
+  <script src="../js/birth-date.js"></script>
   <script src="../js/saju-engine.js"></script>
   <script src="../js/mbti-compat.js"></script>
   <script src="../js/zodiac-compat.js"></script>
+  <script src="../js/site.js"></script>
   <style>
     :root { --bg:#f8fafc; --text:#1e293b; --ok:#16a34a; --fail:#dc2626; --muted:#64748b; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: ui-monospace, 'SF Mono', Menlo, monospace; background: var(--bg); color: var(--text); padding: 24px 16px; font-size: 13px; }
     .wrap { max-width: 720px; margin: 0 auto; }
-    h1 { font-family: -apple-system, sans-serif; font-size: 20px; margin-bottom: 16px; }
+    h1 { font-family: -apple-system, sans-serif; font-size: 20px; margin: 12px 0 16px; }
     a { color: #6b4eff; }
     .panel { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
     .ok { color: var(--ok); font-weight: 700; }
@@ -26,7 +29,7 @@
 </head>
 <body>
   <div class="wrap">
-    <p><a href="../index.html">← 홈</a></p>
+    <div id="site-top"></div>
     <h1>🧪 계산 엔진 검증</h1>
 
     <div class="panel" id="saju-summary"></div>
@@ -36,12 +39,15 @@
     </div>
     <div class="panel" id="mbti-panel"></div>
     <div class="panel" id="zodiac-panel"></div>
+    <div class="panel" id="lunar-panel"></div>
   </div>
   <script>
   (function () {
+    window.SiteNav.mount('verify');
     var SE = window.SajuEngine;
     var MC = window.MbtiCompat;
     var ZC = window.ZodiacCompat;
+    var BD = window.BirthDate;
 
     var r = SE.runSelfTest();
     document.getElementById('saju-summary').innerHTML =
@@ -61,29 +67,39 @@
       tbody.appendChild(tr);
     });
 
-    /* MBTI 결정론 */
     var mbtiOk = true;
+    var asym = 0;
     MC.TYPES.forEach(function (a) {
       MC.TYPES.forEach(function (b) {
         var s1 = MC.getScore(a, b);
         var s2 = MC.getScore(a, b);
         if (s1 !== s2 || s1 < 40 || s1 > 100) mbtiOk = false;
+        if (a < b && MC.getScore(a, b) !== MC.getScore(b, a)) asym++;
       });
     });
-    var symOk = MC.getScore('INTJ', 'ENFP') === MC.getScore('ENFP', 'INTJ');
     document.getElementById('mbti-panel').innerHTML =
       '<strong>MbtiCompat</strong> — 16×16=' + (MC.TYPES.length * MC.TYPES.length) + ' 셀<br>' +
       '결정론: ' + (mbtiOk ? '<span class="ok">PASS</span>' : '<span class="fail">FAIL</span>') + '<br>' +
-      'INTJ×ENFP 대칭: ' + MC.getScore('INTJ','ENFP') + '% — ' +
-      (symOk ? '<span class="ok">PASS</span>' : '<span class="fail">FAIL</span>');
+      '대칭성: ' + (asym === 0 ? '<span class="ok">PASS</span>' : '<span class="fail">FAIL (' + asym + ')</span>') + '<br>' +
+      'INTJ×ENFP: ' + MC.getScore('INTJ','ENFP') + '% / ENFP×INTJ: ' + MC.getScore('ENFP','INTJ') + '%';
 
-    /* 띠 궁합 */
     var ratOx = ZC.getCompat(0, 1);
     var ratHorse = ZC.getCompat(0, 6);
     document.getElementById('zodiac-panel').innerHTML =
       '<strong>ZodiacCompat</strong><br>' +
       '쥐×소(육합): ' + ratOx.score + '% ' + ratOx.label + '<br>' +
       '쥐×말(충): ' + ratHorse.score + '% ' + ratHorse.label;
+
+    var lu = BD.lunarToSolar('2017-05-01', true);
+    var so = BD.solarToLunar('2017-06-24');
+    var luOk = lu.ok && lu.solar === '2017-06-24';
+    var soOk = so.ok && so.lunar === '2017-05-01' && so.leap === true;
+    document.getElementById('lunar-panel').innerHTML =
+      '<strong>BirthDate / KARI 음력</strong><br>' +
+      '음력 2017.05.01(윤) → 양력: ' + (lu.solar || '-') + ' ' +
+      (luOk ? '<span class="ok">PASS</span>' : '<span class="fail">FAIL</span>') + '<br>' +
+      '양력 2017.06.24 → 음력: ' + (so.lunar || '-') + (so.leap ? '(윤)' : '') + ' ' +
+      (soOk ? '<span class="ok">PASS</span>' : '<span class="fail">FAIL</span>');
   })();
   </script>
 </body>
