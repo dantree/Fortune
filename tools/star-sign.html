@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="양력 생일로 보는 별자리 성격과 오늘의 별자리 운세.">
+  <title>별자리 | 사주 도구</title>
+  <script src="../js/vendor/korean-lunar-calendar.min.js?v=1.4"></script>
+  <script src="../js/birth-date.js?v=1.4"></script>
+  <script src="../js/solar-terms.js?v=1.4"></script>
+  <script src="../js/saju-engine.js?v=1.4"></script>
+  <script src="../js/star-sign.js?v=1.3"></script>
+  <script src="../js/site.js?v=1.3"></script>
+  <style>
+    :root { --bg:#f5f3ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; }
+    .app { max-width:480px; margin:0 auto; padding:16px 16px 28px; }
+    h1 { font-size:22px; font-weight:800; margin-bottom:6px; }
+    .hero { font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55; }
+    .card { background:#fff; border-radius:14px; padding:18px; box-shadow:0 4px 18px rgba(107,78,255,.1); margin-bottom:12px; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    input[type=date] { width:100%; padding:12px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:16px; margin-bottom:10px; }
+    .btn { width:100%; padding:13px; border:none; border-radius:12px; background:linear-gradient(135deg,#6b4eff,#9333ea); color:#fff; font-weight:800; cursor:pointer; }
+    .result { display:none; } .result.show { display:block; }
+    .hero-star { text-align:center; color:#fff; border-radius:18px; padding:22px 16px; margin-bottom:12px;
+      background:linear-gradient(150deg,#1e1b4b,#6b4eff 55%,#7c3aed); box-shadow:0 10px 28px rgba(30,27,75,.28); }
+    .hero-star .sym { font-size:42px; }
+    .hero-star .name { font-size:22px; font-weight:900; margin-top:4px; }
+    .hero-star .nick { font-size:14px; opacity:.9; margin-top:4px; }
+    .kw { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:12px; }
+    .kw span { font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.2); }
+    .sec { font-size:15px; font-weight:800; margin-bottom:8px; }
+    .block { font-size:14px; line-height:1.8; color:#374151; margin-bottom:12px; }
+    .block .l { display:block; font-size:12px; font-weight:800; color:var(--primary); margin-bottom:4px; }
+    .score { font-size:28px; font-weight:900; color:var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="site-top"></div>
+    <h1>⭐ 별자리</h1>
+    <p class="hero">양력 생일 기준 황도 12궁 성격과<br>오늘의 별자리 흐름을 길게 풀어 드립니다.</p>
+    <div class="card">
+      <label>달력</label>
+      <div id="cal"></div>
+      <label for="birth">생년월일</label>
+      <input type="date" id="birth" min="1900-01-01" max="2050-12-31">
+      <button type="button" class="btn" id="btn">별자리 풀이 보기</button>
+    </div>
+    <div class="result" id="result">
+      <div class="hero-star">
+        <div class="sym" id="sym"></div>
+        <div class="name" id="name"></div>
+        <div class="nick" id="nick"></div>
+        <div class="kw" id="kw"></div>
+      </div>
+      <div class="card">
+        <div class="sec">📜 성격 풀이</div>
+        <div id="profile"></div>
+      </div>
+      <div class="card">
+        <div class="sec">☀️ 오늘의 별자리 운세</div>
+        <div class="score" id="dscore"></div>
+        <div class="block" id="daily"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function () {
+    window.SiteNav.mount('star');
+    var SE = window.SajuEngine, BD = window.BirthDate, SS = window.StarSign;
+    var birth = document.getElementById('birth');
+    birth.max = SE.todayDateStr();
+    var field = BD.enhance({ name: 'star-cal', dateInput: birth, mountEl: document.getElementById('cal') });
+    var saved = BD.loadBirth();
+    if (saved) BD.applySaved(field, birth, saved);
+
+    function show() {
+      var v = field.getValue();
+      if (!v.ok) return;
+      BD.saveBirth(v);
+      var p = SS.getProfile(v.solar);
+      var d = SS.getDailyStarFortune(v.solar, SE.todayDateStr());
+      var s = p.sign;
+      document.getElementById('sym').textContent = s.symbol;
+      document.getElementById('name').textContent = s.ko + ' · ' + s.en;
+      document.getElementById('nick').textContent = s.nick + ' · ' + s.element + ' · ' + s.modality;
+      document.getElementById('kw').innerHTML = s.keywords.map(function (k) { return '<span>#' + k + '</span>'; }).join('');
+      var R = p.reading;
+      document.getElementById('profile').innerHTML =
+        '<div class="block"><span class="l">총평</span>' + R.opening + ' ' + R.element + '</div>' +
+        '<div class="block"><span class="l">기질</span>' + R.nature + '</div>' +
+        '<div class="block"><span class="l">연애</span>' + R.love + '</div>' +
+        '<div class="block"><span class="l">일</span>' + R.work + '</div>' +
+        '<div class="block"><span class="l">그늘</span>' + R.shadow + '</div>';
+      document.getElementById('dscore').textContent = d.score + '점';
+      document.getElementById('daily').textContent = d.summary;
+      document.getElementById('result').classList.add('show');
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.getElementById('btn').addEventListener('click', show);
+  })();
+  </script>
+</body>
+</html>

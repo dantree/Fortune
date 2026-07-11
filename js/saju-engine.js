@@ -1,12 +1,13 @@
 /**
- * 사주 엔진 v1.1 — 결정론적 (Deterministic)
+ * 사주 엔진 v1.2 — 결정론적 (Deterministic)
  * 같은 생년월일(+시간) → 항상 같은 결과
  *
  * 기준:
  * - 일주(日柱): 만세력 JDN (2000-01-01 = 戊午)
- * - 년주(年柱): 입춘 2월 4일 간이 절기
+ * - 년주(年柱): SolarTerms 입춘 절입(KST). 미로드 시 2/4 간이
+ * - 월주(月柱): 12절 절입 + 연간 오호둔(年上起月)
+ * - 대운: 성별·연간 음양 → 순/역행, 절입까지 일수÷3 = 기산
  * - 시주(時柱): 2시간 시진 + 오서둔(五鼠遁), 23시 이후 자시=다음날 일주
- * - 음력: 미지원
  */
 (function (global) {
   'use strict';
@@ -32,7 +33,9 @@
   var LICHUN_MONTH = 2;
   var LICHUN_DAY = 4;
   var DAY_JDN_OFFSET = 49;
-  var ENGINE_VERSION = '1.1.1';
+  var ENGINE_VERSION = '1.2.0';
+  /** 오호둔: 연간 → 인월(寅月) 천간 시작 */
+  var MONTH_STEM_BASE = [2, 4, 6, 8, 0]; /* 甲己→丙, 乙庚→戊, … */
 
   function parseDate(dateStr) {
     var p = dateStr.split('-').map(Number);
@@ -89,9 +92,33 @@
     };
   }
 
-  function getSajuYear(y, m, d) {
+  function getSajuYearSimple(y, m, d) {
     if (m < LICHUN_MONTH || (m === LICHUN_MONTH && d < LICHUN_DAY)) return y - 1;
     return y;
+  }
+
+  /** 날짜만 있을 때 절입 비교용 기본 시각 (정오 KST) */
+  function defaultBirthTime(timeStr) {
+    return timeStr || '12:00';
+  }
+
+  function hasSolarTerms() {
+    return typeof global.SolarTerms !== 'undefined' && global.SolarTerms.getLichun;
+  }
+
+  /**
+   * 사주년 — 정밀 입춘(KST) 우선, 없으면 2/4 간이
+   * @param {string} [timeStr] HH:MM (없으면 12:00)
+   */
+  function getSajuYear(y, m, d, timeStr) {
+    if (hasSolarTerms()) {
+      var dateStr = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      var jd = global.SolarTerms.birthJdKST(dateStr, defaultBirthTime(timeStr));
+      var lichun = global.SolarTerms.getLichun(y);
+      if (jd < lichun.jdUTC) return y - 1;
+      return y;
+    }
+    return getSajuYearSimple(y, m, d);
   }
 
   function getDayPillarIndex(y, m, d) {
@@ -145,15 +172,17 @@
       stem: p.stem,
       branch: p.branch,
       index: idx,
+      stemIndex: p.stemIndex,
+      branchIndex: p.branchIndex,
       oheng: ohengFromStemIndex(p.stemIndex),
       dayMaster: p.stem,
       description: getDayMasterDesc(p.stemIndex)
     };
   }
 
-  function getYearPillar(dateStr) {
+  function getYearPillar(dateStr, timeStr) {
     var dt = parseDate(dateStr);
-    var sajuYear = getSajuYear(dt.y, dt.m, dt.d);
+    var sajuYear = getSajuYear(dt.y, dt.m, dt.d, timeStr);
     var idx = getYearPillarIndex(sajuYear);
     var p = pillarFromIndex(idx);
     return {
@@ -161,10 +190,119 @@
       stem: p.stem,
       branch: p.branch,
       index: idx,
+      stemIndex: p.stemIndex,
+      branchIndex: p.branchIndex,
       sajuYear: sajuYear,
       oheng: ohengFromStemIndex(p.stemIndex),
       animal: ANIMALS[p.branchIndex],
       animalBranch: p.branch
+    };
+  }
+
+  /**
+   * 월주 — 12절 절입 + 오호둔
+   * SolarTerms 없으면 null
+   */
+  function getMonthPillar(dateStr, timeStr) {
+    if (!hasSolarTerms()) return null;
+    var ctx = global.SolarTerms.getTermContext(dateStr, defaultBirthTime(timeStr));
+    if (!ctx || !ctx.current) return null;
+
+    var year = getYearPillar(dateStr, timeStr);
+    var branchIndex = ctx.current.branchIndex;
+    /* 寅=0 … 丑=11 월 순번 */
+    var monthOrd = (branchIndex - 2 + 12) % 12;
+    var stemBase = MONTH_STEM_BASE[year.stemIndex % 5];
+    var stemIndex = (stemBase + monthOrd) % 10;
+    var idx = null;
+    for (var i = 0; i < 60; i++) {
+      if (i % 10 === stemIndex && i % 12 === branchIndex) { idx = i; break; }
+    }
+    var p = pillarFromIndex(idx);
+
+    return {
+      pillar: p.hanja,
+      stem: p.stem,
+      branch: p.branch,
+      index: idx,
+      stemIndex: stemIndex,
+      branchIndex: branchIndex,
+      oheng: ohengFromStemIndex(stemIndex),
+      term: {
+        ko: ctx.current.ko,
+        hanja: ctx.current.hanja,
+        kst: ctx.current.kst.dateTimeStr
+      },
+      nextTerm: ctx.next ? {
+        ko: ctx.next.ko,
+        kst: ctx.next.kst.dateTimeStr
+      } : null,
+      prevTerm: ctx.prev ? {
+        ko: ctx.prev.ko,
+        kst: ctx.prev.kst.dateTimeStr
+      } : null
+    };
+  }
+
+  /**
+   * 대운 — 성별 필수. 월주·절입 기반 기산·10개 대운
+   * @param {'M'|'F'} gender
+   */
+  function getDaeun(dateStr, timeStr, gender) {
+    if (gender !== 'M' && gender !== 'F') return null;
+    if (!hasSolarTerms()) return null;
+
+    var month = getMonthPillar(dateStr, timeStr);
+    var year = getYearPillar(dateStr, timeStr);
+    if (!month) return null;
+
+    var ctx = global.SolarTerms.getTermContext(dateStr, defaultBirthTime(timeStr));
+    var yearStemYang = year.stemIndex % 2 === 0; /* 甲丙戊庚壬 */
+    var male = gender === 'M';
+    var forward = (yearStemYang && male) || (!yearStemYang && !male);
+
+    var days = forward ? ctx.daysUntilNext : ctx.daysSincePrev;
+    if (days == null || days < 0) days = 0;
+
+    var startYearsExact = days / 3;
+    var startYears = Math.floor(startYearsExact);
+    var startMonths = Math.round((startYearsExact - startYears) * 12);
+    if (startMonths >= 12) { startYears += 1; startMonths = 0; }
+
+    var periods = [];
+    for (var i = 0; i < 10; i++) {
+      var pIdx = forward ? month.index + 1 + i : month.index - 1 - i;
+      var p = pillarFromIndex(pIdx);
+      var ageFrom = startYears + i * 10;
+      periods.push({
+        order: i + 1,
+        pillar: p.hanja,
+        stem: p.stem,
+        branch: p.branch,
+        oheng: ohengFromStemIndex(p.stemIndex),
+        ageFrom: ageFrom,
+        ageTo: ageFrom + 9,
+        label: ageFrom + '세~' + (ageFrom + 9) + '세'
+      });
+    }
+
+    var anchor = forward ? ctx.next : ctx.prev;
+    return {
+      direction: forward ? '순행' : '역행',
+      forward: forward,
+      gender: gender,
+      yearStemYang: yearStemYang,
+      daysToTerm: Math.round(days * 100) / 100,
+      startYears: startYears,
+      startMonths: startMonths,
+      startYearsExact: Math.round(startYearsExact * 100) / 100,
+      startLabel: startYears + '세' + (startMonths ? ' ' + startMonths + '개월' : ''),
+      monthPillar: month.pillar,
+      anchorTerm: anchor ? { ko: anchor.ko, kst: anchor.kst.dateTimeStr } : null,
+      periods: periods,
+      note: forward
+        ? '양남음녀 — 출생 후 다음 절입까지 ' + days.toFixed(1) + '일 ÷ 3 ≈ ' + startYearsExact.toFixed(1) + '세부터 대운이 순행합니다.'
+        : '음남양녀 — 직전 절입부터 출생까지 ' + days.toFixed(1) + '일 ÷ 3 ≈ ' + startYearsExact.toFixed(1) + '세부터 대운이 역행합니다.'
     };
   }
 
@@ -209,27 +347,34 @@
     };
   }
 
-  function getFullSaju(dateStr, timeStr) {
+  function getFullSaju(dateStr, timeStr, gender) {
     var dayDate = dateStr;
     var t = parseTime(timeStr);
     if (t && t.h >= 23) dayDate = addDays(dateStr, 1);
 
     var day = getDayPillar(dayDate);
-    var year = getYearPillar(dateStr);
+    var year = getYearPillar(dateStr, timeStr);
+    var month = getMonthPillar(dateStr, timeStr);
     var hour = timeStr ? getHourPillar(dateStr, timeStr) : null;
+    var daeun = gender ? getDaeun(dateStr, timeStr, gender) : null;
+    var precise = hasSolarTerms();
 
     return {
       birthDate: dateStr,
       birthTime: timeStr || null,
       year: year,
+      month: month,
       day: day,
       hour: hour,
+      daeun: daeun,
       meta: {
         engineVersion: ENGINE_VERSION,
         calendar: 'gregorian',
-        lichunRule: '2월 4일 간이 입춘',
+        lichunRule: precise ? '태양황경 입춘 절입(KST)' : '2월 4일 간이 입춘',
+        monthRule: precise ? '12절 절입 + 오호둔' : null,
         hourPillar: !!hour,
-        ziRule: '23시 이후 자시 → 다음날 일주'
+        ziRule: '23시 이후 자시 → 다음날 일주',
+        defaultTime: timeStr ? null : '절기 비교 시 12:00 KST'
       }
     };
   }
@@ -540,9 +685,11 @@
   var VERIFY_CASES = [
     { date: '2000-01-01', day: '戊午', yearAnimal: '토끼', sajuYear: 1999 },
     { date: '2000-02-03', day: '辛卯', yearAnimal: '토끼', sajuYear: 1999 },
-    { date: '2000-02-04', day: '壬辰', yearAnimal: '용', sajuYear: 2000 },
+    /* 2000 입춘 ≈ 21:36 KST — 정오(기본)는 아직 토끼해 */
+    { date: '2000-02-04', day: '壬辰', yearAnimal: '토끼', sajuYear: 1999 },
+    { date: '2000-02-04', time: '22:00', day: '壬辰', yearAnimal: '용', sajuYear: 2000 },
     { date: '2000-02-05', day: '癸巳', yearAnimal: '용', sajuYear: 2000 },
-    { date: '1990-05-15', day: '庚辰', yearAnimal: '말', sajuYear: 1990 },
+    { date: '1990-05-15', day: '庚辰', yearAnimal: '말', sajuYear: 1990, month: '辛巳' },
     { date: '1995-08-22', day: '乙酉', yearAnimal: '돼지', sajuYear: 1995 },
     { date: '1990-05-15', time: '11:30', hour: '壬午' },
     { date: '1990-05-15', time: '23:30', hour: '戊子', ziNextDay: true }
@@ -567,16 +714,35 @@
         return;
       }
       var day = getDayPillar(tc.date);
-      var year = getYearPillar(tc.date);
+      var year = getYearPillar(tc.date, tc.time || null);
       if (day.pillar !== tc.day) failed.push(tc.date + ' 일주: got ' + day.pillar + ' want ' + tc.day);
       else passed++;
       if (tc.yearAnimal && year.animal !== tc.yearAnimal) {
-        failed.push(tc.date + ' 띠: got ' + year.animal + ' want ' + tc.yearAnimal);
+        failed.push(tc.date + (tc.time ? ' ' + tc.time : '') + ' 띠: got ' + year.animal + ' want ' + tc.yearAnimal);
       } else if (tc.yearAnimal) passed++;
       if (tc.sajuYear && year.sajuYear !== tc.sajuYear) {
-        failed.push(tc.date + ' 사주년: got ' + year.sajuYear + ' want ' + tc.sajuYear);
+        failed.push(tc.date + (tc.time ? ' ' + tc.time : '') + ' 사주년: got ' + year.sajuYear + ' want ' + tc.sajuYear);
       } else if (tc.sajuYear) passed++;
+      if (tc.month) {
+        var mo = getMonthPillar(tc.date, tc.time || null);
+        if (!mo || mo.pillar !== tc.month) {
+          failed.push(tc.date + ' 월주: got ' + (mo && mo.pillar) + ' want ' + tc.month);
+        } else passed++;
+      }
     });
+
+    if (hasSolarTerms()) {
+      var lichun = global.SolarTerms.getLichun(2000);
+      if (!lichun || lichun.kst.m !== 2 || lichun.kst.d !== 4) {
+        failed.push('2000 입춘 날짜 이상: ' + (lichun && lichun.kst.dateTimeStr));
+      } else passed++;
+      var dTest = getDaeun('1990-05-15', '12:00', 'M');
+      if (!dTest || !dTest.periods || dTest.periods.length !== 10) {
+        failed.push('대운 생성 실패');
+      } else passed++;
+    } else {
+      failed.push('SolarTerms 미로드 — 월주/대운 검증 스킵');
+    }
 
     var d1 = getDayPillar('1990-05-15');
     var d2 = getDayPillar('1990-05-15');
@@ -616,7 +782,9 @@
     getSajuYear: getSajuYear,
     getDayPillar: getDayPillar,
     getYearPillar: getYearPillar,
+    getMonthPillar: getMonthPillar,
     getHourPillar: getHourPillar,
+    getDaeun: getDaeun,
     getFullSaju: getFullSaju,
     getOhengRelation: getOhengRelation,
     getDailyFortune: getDailyFortune,

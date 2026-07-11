@@ -8,13 +8,25 @@
   var TOOLS = [
     { id: 'home', title: '홈', desc: '', href: 'index.html', nav: '홈', public: false },
     {
-      id: 'today',
-      title: '오늘의 운세',
-      desc: '운세 · 로또',
-      href: 'tools/today.html',
+      id: 'total-today',
+      title: '오늘의 총운',
+      desc: '사주·띠·별자리 종합',
+      href: 'tools/total-today.html',
       emoji: '☀️',
-      tag: '매일',
+      tag: '추천',
       nav: '오늘',
+      public: true,
+      hub: false,
+      group: 'today'
+    },
+    {
+      id: 'today',
+      title: '오늘의 운세·로또',
+      desc: '생활 운세 · 로또',
+      href: 'tools/today.html',
+      emoji: '🎱',
+      tag: '매일',
+      nav: null,
       public: true,
       hub: false,
       group: 'today'
@@ -28,8 +40,8 @@
       tag: '재미',
       nav: null,
       public: true,
-      hub: false,
-      group: 'fun'
+      hub: true,
+      group: 'today'
     },
     {
       id: 'mbti-oheng',
@@ -45,13 +57,24 @@
     {
       id: 'ddi',
       title: '띠 궁합',
-      desc: '삼합·육합·충',
+      desc: '육합·삼합·점수·해설',
       href: 'tools/ddi-compat.html',
       emoji: '🐉',
       tag: '12띠',
       nav: null,
       public: true,
       group: 'compat'
+    },
+    {
+      id: 'full-saju',
+      title: '풀사주',
+      desc: '이름·성별·시주',
+      href: 'tools/full-saju.html',
+      emoji: '📖',
+      tag: '원국',
+      nav: null,
+      public: true,
+      group: 'me'
     },
     {
       id: 'ilju',
@@ -67,10 +90,21 @@
     {
       id: 'oheng-me',
       title: '내 오행 성격',
-      desc: '일간 한눈에',
+      desc: '일간 상세 풀이',
       href: 'tools/oheng-me.html',
       emoji: '🌿',
       tag: '성격',
+      nav: null,
+      public: true,
+      group: 'me'
+    },
+    {
+      id: 'star',
+      title: '별자리',
+      desc: '성격 · 오늘 운세',
+      href: 'tools/star-sign.html',
+      emoji: '⭐',
+      tag: '12궁',
       nav: null,
       public: true,
       group: 'me'
@@ -87,6 +121,7 @@
   ];
 
   var GROUPS = [
+    { id: 'today', label: '오늘' },
     { id: 'compat', label: '궁합' },
     { id: 'me', label: '나에 대해' }
   ];

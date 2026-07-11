@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="입춘 기준 사주년 띠로 삼합·육합·충 궁합을 확인하세요.">
+  <meta name="description" content="입춘 기준 띠 궁합. 육합·삼합·충·형·해와 항목별 점수, 전문가 해설.">
   <title>띠 궁합 | 사주 도구</title>
   <script src="../config.js"></script>
-  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
-  <script src="../js/birth-date.js"></script>
-  <script src="../js/saju-engine.js"></script>
-  <script src="../js/zodiac-compat.js"></script>
-  <script src="../js/site.js"></script>
+  <script src="../js/vendor/korean-lunar-calendar.min.js?v=1.4"></script>
+  <script src="../js/birth-date.js?v=1.4"></script>
+  <script src="../js/solar-terms.js?v=1.4"></script>
+  <script src="../js/saju-engine.js?v=1.4"></script>
+  <script src="../js/zodiac-compat.js?v=1.3"></script>
+  <script src="../js/site.js?v=1.3"></script>
   <style>
     :root {
       --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
@@ -18,22 +19,50 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
-    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 24px; }
+    .app { max-width: 480px; margin: 0 auto; padding: 16px 16px 28px; }
     h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-    .hero { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-    .card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+    .hero { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.55; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); margin-bottom: 12px; }
     label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
     input[type=date] { width: 100%; padding: 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 16px; margin-bottom: 12px; }
     .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, var(--primary), #9333ea); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
-    .result { display: none; text-align: center; }
+    .result { display: none; }
     .result.show { display: block; }
-    .score { font-size: 56px; font-weight: 900; color: var(--primary); margin: 8px 0; }
-    .pair { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-    .rel { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600; background: #ede9fe; color: #4c1d95; margin-bottom: 16px; }
-    .rel.chung { background: #fee2e2; color: #991b1b; }
-    .rel.yukhap { background: #dcfce7; color: #166534; }
-    .detail { text-align: left; font-size: 14px; line-height: 1.7; color: #374151; padding: 14px; background: #fafafa; border-radius: 10px; }
-    footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 20px; }
+    .hero-score {
+      text-align: center; color: #fff; border-radius: 18px; padding: 22px 16px;
+      background: linear-gradient(150deg, #4c1d95, #6b4eff 55%, #7c3aed);
+      box-shadow: 0 10px 28px rgba(76,29,149,.28); margin-bottom: 12px;
+    }
+    .hero-score .pair { font-size: 18px; font-weight: 800; }
+    .hero-score .score { font-size: 56px; font-weight: 900; line-height: 1.1; margin: 6px 0; }
+    .hero-score .grade { font-size: 15px; font-weight: 700; opacity: .95; }
+    .hero-score .one { font-size: 13px; opacity: .85; margin-top: 8px; line-height: 1.55; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+    .chip { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.2); }
+    .sec-title { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+    .profiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pbox { background: #fafafa; border-radius: 12px; padding: 12px; }
+    .pbox .name { font-size: 15px; font-weight: 800; }
+    .pbox .nick { font-size: 12px; color: var(--primary); font-weight: 700; margin: 2px 0 6px; }
+    .pbox .txt { font-size: 12px; line-height: 1.55; color: #4b5563; }
+    .pbox .kw { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .pbox .kw span { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #ede9fe; color: #4c1d95; }
+    .bar { margin-bottom: 10px; }
+    .bar-h { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .bar-h span:last-child { color: var(--primary); }
+    .bar-track { height: 8px; background: #f3f4f6; border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #6b4eff, #a855f7); }
+    .reading p { font-size: 14px; line-height: 1.8; color: #374151; margin-bottom: 12px; }
+    .reading p:last-child { margin-bottom: 0; }
+    .reading .label { display: block; font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .list { padding-left: 0; list-style: none; }
+    .list li { font-size: 13px; line-height: 1.55; padding: 8px 0 8px 18px; position: relative; border-bottom: 1px solid #f3f4f6; color: #374151; }
+    .list li:last-child { border: none; }
+    .list.good li::before { content: '✓'; position: absolute; left: 0; color: #16a34a; font-weight: 800; }
+    .list.warn li::before { content: '!'; position: absolute; left: 2px; color: #ea580c; font-weight: 800; }
+    .meta-tiny { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.5; }
+    .note { font-size: 12px; color: #92400e; background: #fffbeb; padding: 10px 12px; border-radius: 10px; line-height: 1.6; margin-top: 8px; }
+    footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 16px; line-height: 1.7; }
     footer a { color: var(--primary); text-decoration: none; }
   </style>
 </head>
@@ -41,7 +70,7 @@
   <div class="app">
     <div id="site-top"></div>
     <h1>🐉 띠 궁합</h1>
-    <p class="hero">입춘(2/4) 기준 사주년 띠로 궁합을 봅니다</p>
+    <p class="hero">입춘(2/4) 사주년 띠로 육합·삼합·충·형·해를 보고,<br>항목 점수와 전문가 해설을 풀어 드립니다.</p>
 
     <div class="card">
       <label>나 · 달력</label>
@@ -52,17 +81,49 @@
       <div id="cal-b"></div>
       <label for="birth-b">상대 생년월일</label>
       <input type="date" id="birth-b" min="1900-01-01" max="2050-12-31">
-      <button type="button" class="btn" id="btn-go">띠 궁합 보기</button>
+      <button type="button" class="btn" id="btn-go">띠 궁합 자세히 보기</button>
     </div>
 
-    <div class="card result" id="result">
-      <div class="pair" id="pair">—</div>
-      <div class="score" id="score">—%</div>
-      <div class="rel" id="rel">—</div>
-      <div class="detail" id="detail"></div>
+    <div class="result" id="result">
+      <div class="hero-score">
+        <div class="pair" id="pair">—</div>
+        <div class="score" id="score">—%</div>
+        <div class="grade" id="grade"></div>
+        <p class="one" id="one-liner"></p>
+        <div class="badge-row" id="badges"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">📜 두 띠의 기운</div>
+        <div class="profiles" id="profiles"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">📊 항목별 궁합 (정량)</div>
+        <div id="bars"></div>
+        <p class="meta-tiny" id="score-note"></p>
+      </div>
+
+      <div class="card reading">
+        <div class="sec-title">🔮 전문가 해설 (정성)</div>
+        <div id="reading"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">💪 잘 맞는 점</div>
+        <ul class="list good" id="strengths"></ul>
+      </div>
+
+      <div class="card">
+        <div class="sec-title">⚠️ 조심할 점</div>
+        <ul class="list warn" id="risks"></ul>
+        <div class="note">띠 궁합은 년지(해의 지지) 기준 참고입니다. 일간·월주·시주까지 보면 더 정밀해집니다.</div>
+      </div>
+
+      <p class="meta-tiny" id="input-meta"></p>
     </div>
 
-    <footer><a href="../docs/CALCULATION.md">계산 기준</a> · 12×12 고정표 · 랜덤 없음</footer>
+    <footer><a href="../docs/CALCULATION.md">계산 기준</a> · 12띠 고정표 · 같은 입력=같은 결과</footer>
   </div>
   <script>
   (function () {
@@ -85,18 +146,19 @@
       mountEl: document.getElementById('cal-b')
     });
 
-    var DETAIL = {
-      '육합': '서로 끌리는 육합(六合) 관계입니다. 자연스럽게 맞아떨어지는 조합이에요.',
-      '삼합': '삼합(三合)으로 같은 방향의 기운이 모입니다. 협력과 시너지가 좋습니다.',
-      '충': '충(沖) 관계로 에너지가 부딪힙니다. 다름을 인정하고 소통이 중요해요.',
-      '동일': '같은 띠입니다. 공감대는 넓지만, 서로의 단점도 잘 보일 수 있어요.',
-      '보통': '특별한 합·충 관계는 아니지만, 노력으로 좋은 관계를 만들 수 있어요.'
-    };
+    function profileHtml(side, animal) {
+      var p = animal.profile;
+      return '<div class="pbox"><div class="name">' + side + ' · ' + animal.name + '띠</div>' +
+        '<div class="nick">' + p.nick + ' · ' + animal.branch + ' · ' + animal.oheng + '</div>' +
+        '<div class="txt">' + p.nature + '</div>' +
+        '<div class="kw">' + p.keywords.map(function (k) { return '<span>#' + k + '</span>'; }).join('') + '</div></div>';
+    }
 
     function show() {
       var va = fieldA.getValue();
       var vb = fieldB.getValue();
       if (!va.ok || !vb.ok) return;
+
       var ya = SE.getYearPillar(va.solar);
       var yb = SE.getYearPillar(vb.solar);
       var biA = SE.BRANCHES.indexOf(ya.branch);
@@ -105,14 +167,51 @@
 
       document.getElementById('pair').textContent = ya.animal + '띠 × ' + yb.animal + '띠';
       document.getElementById('score').textContent = c.score + '%';
-      var relEl = document.getElementById('rel');
-      relEl.textContent = c.label;
-      relEl.className = 'rel' + (c.type === '충' ? ' chung' : (c.type === '육합' || c.type === '삼합' ? ' yukhap' : ''));
-      document.getElementById('detail').textContent =
-        ya.animal + '띠(년주 ' + ya.pillar + ', 양력 ' + va.solar.replace(/-/g, '.') + ')와 ' +
-        yb.animal + '띠(년주 ' + yb.pillar + ', 양력 ' + vb.solar.replace(/-/g, '.') + ') — ' +
-        (DETAIL[c.type] || DETAIL['보통']);
+      document.getElementById('grade').textContent = c.emoji + ' ' + c.grade + ' · ' + c.label;
+      document.getElementById('one-liner').textContent = c.oneLiner;
+
+      var badges = [];
+      badges.push('<span class="chip">' + c.label + '</span>');
+      if (c.yukhapName) badges.push('<span class="chip">' + c.yukhapName + '</span>');
+      if (c.samhap) badges.push('<span class="chip">' + c.samhap.name + ' · ' + c.samhap.element + '</span>');
+      badges.push('<span class="chip">년주 ' + ya.pillar + '×' + yb.pillar + '</span>');
+      document.getElementById('badges').innerHTML = badges.join('');
+
+      document.getElementById('profiles').innerHTML =
+        profileHtml('나', c.animalA) + profileHtml('상대', c.animalB);
+
+      document.getElementById('bars').innerHTML = c.dimensions.map(function (d) {
+        return '<div class="bar"><div class="bar-h"><span>' + d.label + '</span><span>' + d.score + '%</span></div>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + d.score + '%"></div></div></div>';
+      }).join('');
+      document.getElementById('score-note').textContent =
+        '종합 ' + c.score + '% · 관계 기본점 ' + c.baseScore +
+        ' + 항목 평균을 합산 (같은 띠 쌍이면 항상 동일)';
+
+      var R = c.reading;
+      document.getElementById('reading').innerHTML =
+        '<p><span class="label">총평</span>' + R.opening + '</p>' +
+        '<p><span class="label">고전 해석</span>' + R.classical + '</p>' +
+        '<p><span class="label">오행 케미</span>' + R.chemistry + '</p>' +
+        '<p><span class="label">연애·정</span>' + R.love + '</p>' +
+        '<p><span class="label">혼인·동행</span>' + R.marriage + '</p>' +
+        '<p><span class="label">일·협력</span>' + R.work + '</p>' +
+        '<p><span class="label">주의</span>' + R.caution + '</p>' +
+        '<p><span class="label">처방</span>' + R.advice + '</p>';
+
+      document.getElementById('strengths').innerHTML =
+        c.strengths.map(function (s) { return '<li>' + s + '</li>'; }).join('');
+      document.getElementById('risks').innerHTML =
+        c.risks.map(function (s) { return '<li>' + s + '</li>'; }).join('');
+
+      document.getElementById('input-meta').textContent =
+        '나 ' + (va.calendar === 'lunar' ? '음력 ' : '양력 ') + va.date.replace(/-/g, '.') +
+        ' → 양력 ' + va.solar.replace(/-/g, '.') + ' · 사주년 ' + ya.sajuYear + ' ' + ya.animal + '띠 / ' +
+        '상대 ' + (vb.calendar === 'lunar' ? '음력 ' : '양력 ') + vb.date.replace(/-/g, '.') +
+        ' → 양력 ' + vb.solar.replace(/-/g, '.') + ' · 사주년 ' + yb.sajuYear + ' ' + yb.animal + '띠';
+
       document.getElementById('result').classList.add('show');
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     document.getElementById('btn-go').addEventListener('click', show);

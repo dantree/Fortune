@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="직장·사업·애정·건강운을 한눈에. 쉬운 말로 읽는 풀사주.">
+  <title>풀사주 | 사주 도구</title>
+  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
+  <script src="../js/birth-date.js?v=3.0"></script>
+  <script src="../js/solar-terms.js?v=3.0"></script>
+  <script src="../js/saju-engine.js?v=3.0"></script>
+  <script src="../js/saju-guide.js?v=3.0"></script>
+  <script src="../js/oheng-story.js?v=3.0"></script>
+  <script src="../js/zodiac-compat.js?v=3.0"></script>
+  <script src="../js/star-sign.js?v=3.0"></script>
+  <script src="../js/total-fortune.js?v=3.0"></script>
+  <script src="../js/site.js?v=3.0"></script>
+  <style>
+    :root {
+      --bg: #f3f1fb;
+      --text: #16141f;
+      --muted: #6b7280;
+      --primary: #5b4fe8;
+      --up: #0d9488;
+      --mid: #7c6af0;
+      --down: #c2410c;
+      --card: #fff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(91,79,232,.14), transparent 55%),
+        radial-gradient(700px 360px at 100% 0%, rgba(13,148,136,.08), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+    }
+    .app { max-width: 480px; margin: 0 auto; padding: 16px 16px 36px; }
+    h1 { font-size: 24px; font-weight: 850; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .hero { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.55; }
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(22,20,31,.06);
+      margin-bottom: 12px;
+      border: 1px solid rgba(91,79,232,.06);
+    }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input, select {
+      width: 100%; padding: 12px; border: 1.5px solid #e5e7eb; border-radius: 12px;
+      font-size: 16px; margin-bottom: 12px; background: #fafafa;
+    }
+    .btn {
+      width: 100%; padding: 15px; border: none; border-radius: 14px;
+      background: linear-gradient(135deg, #5b4fe8, #7c3aed); color: #fff;
+      font-weight: 800; font-size: 15px; cursor: pointer;
+    }
+    .result { display: none; } .result.show { display: block; }
+    .snap-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .snap-head h2 { font-size: 18px; font-weight: 850; letter-spacing: -0.02em; }
+    .snap-head .sub { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+    .badge {
+      flex-shrink: 0; font-size: 11px; font-weight: 800; padding: 6px 10px;
+      border-radius: 999px; background: #eef2ff; color: var(--primary);
+    }
+    .badge.down { background: #fff7ed; color: var(--down); }
+    .badge.up { background: #f0fdfa; color: var(--up); }
+    .meters { display: flex; flex-direction: column; gap: 12px; }
+    .meter { display: grid; grid-template-columns: 56px 1fr 48px; gap: 10px; align-items: center; }
+    .meter .lab { font-size: 13px; font-weight: 800; }
+    .meter .track { height: 10px; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
+    .meter .fill { height: 100%; border-radius: 999px; width: 0; transition: width .7s cubic-bezier(.22,1,.36,1); }
+    .meter .fill.up { background: linear-gradient(90deg, #14b8a6, #0d9488); }
+    .meter .fill.mid { background: linear-gradient(90deg, #8b7cf7, #5b4fe8); }
+    .meter .fill.down { background: linear-gradient(90deg, #fb923c, #ea580c); }
+    .meter .pct { font-size: 13px; font-weight: 850; text-align: right; font-variant-numeric: tabular-nums; }
+    .meter-tip { font-size: 12px; color: #4b5563; line-height: 1.45; margin: -2px 0 4px 66px; }
+    .hl { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+    .hl span {
+      font-size: 13px; line-height: 1.5; padding: 10px 12px; border-radius: 12px;
+      background: #f8fafc; color: #334155; border-left: 3px solid var(--primary);
+    }
+    .sec { font-size: 16px; font-weight: 850; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .story { font-size: 14px; line-height: 1.8; color: #374151; }
+    .meta { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 4px; }
+    .pillars.three { grid-template-columns: repeat(3, 1fr); }
+    .pillars.two { grid-template-columns: repeat(2, 1fr); }
+    .pbox { text-align: center; padding: 8px 4px; background: #f8fafc; border-radius: 12px; }
+    .pbox .k { font-size: 10px; color: var(--muted); }
+    .pbox .v { font-size: 15px; font-weight: 850; margin-top: 2px; }
+    .years { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .ychip {
+      font-size: 13px; font-weight: 800; padding: 8px 12px; border-radius: 999px;
+      background: #eef2ff; color: var(--primary);
+    }
+    .ychip.care { background: #fff7ed; color: var(--down); }
+    .ychip.far { background: #f1f5f9; color: #64748b; font-weight: 650; }
+    .faq { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .faq-item {
+      padding: 14px; background: #f8fafc; border-radius: 14px;
+      border: 1px solid #eef2ff;
+    }
+    .faq-item .q { font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 4px; }
+    .faq-item .when { font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: -0.02em; margin-bottom: 6px; }
+    .faq-item .tip { font-size: 13px; line-height: 1.55; color: #4b5563; }
+    .chapter { padding: 12px 14px; background: #f8fafc; border-radius: 12px; margin-top: 8px; }
+    .chapter .t { font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .chapter .b { font-size: 13px; line-height: 1.65; color: #374151; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+    .chips span {
+      font-size: 12px; padding: 5px 10px; background: #eef2ff; color: #4338ca;
+      border-radius: 999px; font-weight: 650;
+    }
+    .block { font-size: 14px; line-height: 1.75; color: #374151; margin-bottom: 10px; }
+    .block .l { display: block; font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    details.more { margin-top: 4px; }
+    details.more > summary {
+      list-style: none; cursor: pointer; font-size: 14px; font-weight: 800;
+      padding: 12px 0 4px; color: var(--primary);
+    }
+    details.more > summary::-webkit-details-marker { display: none; }
+    .link-btn {
+      display: block; text-align: center; text-decoration: none; margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="site-top"></div>
+    <h1>풀사주</h1>
+    <p class="hero">직장·사업·애정·건강을 한눈에.<br>어려운 용어 없이, 지금 무엇을 하면 좋은지만.</p>
+
+    <div class="card">
+      <label for="name">이름 (호칭용)</label>
+      <input type="text" id="name" placeholder="예: 지은" maxlength="20">
+      <label for="gender">성별</label>
+      <select id="gender">
+        <option value="">선택 안 함</option>
+        <option value="F">여성</option>
+        <option value="M">남성</option>
+      </select>
+      <label>달력</label>
+      <div id="cal"></div>
+      <label for="birth">생년월일</label>
+      <input type="date" id="birth" min="1900-01-01" max="2050-12-31">
+      <label for="time">출생시간 (선택)</label>
+      <input type="time" id="time">
+      <button type="button" class="btn" id="btn">내 운세 보기</button>
+    </div>
+
+    <div class="result" id="result">
+      <!-- 1. 스냅샷: 4운 게이지 -->
+      <div class="card" id="ch-snap" style="display:none">
+        <div class="snap-head">
+          <div>
+            <h2 id="snap-title">지금 운세</h2>
+            <div class="sub" id="snap-sub"></div>
+          </div>
+          <div class="badge" id="snap-badge">보통</div>
+        </div>
+        <div class="meters" id="meters"></div>
+        <div class="hl" id="highlights"></div>
+      </div>
+
+      <!-- 2. 짧은 이야기 -->
+      <div class="card" id="ch-now" style="display:none">
+        <div class="sec">왜 이렇게 읽히나요</div>
+        <div class="story" id="now-text"></div>
+        <div class="pillars" id="pillars"></div>
+        <p class="meta" id="meta"></p>
+      </div>
+
+      <!-- 3. 타이밍 -->
+      <div class="card" id="ch-luck" style="display:none">
+        <div class="sec">가까운 타이밍</div>
+        <div class="story" id="luck-text"></div>
+        <div class="years" id="luck-years"></div>
+      </div>
+
+      <!-- 4. FAQ -->
+      <div class="card" id="ch-faq" style="display:none">
+        <div class="sec">이럴 때 움직이세요</div>
+        <div class="story" id="faq-lead" style="margin-bottom:4px"></div>
+        <div class="faq" id="faq-list"></div>
+      </div>
+
+      <!-- 더보기 -->
+      <div class="card">
+        <details class="more" id="more-box">
+          <summary>더 보기 · 앞으로의 흐름 · 생활 팁</summary>
+          <div id="ch-life" style="display:none;margin-top:10px">
+            <div class="sec" style="font-size:14px">앞으로의 흐름</div>
+            <div class="story" id="life-lead" style="margin-bottom:4px"></div>
+            <div id="life-list"></div>
+          </div>
+          <div id="ch-daily" style="display:none;margin-top:14px">
+            <div class="sec" style="font-size:14px">생활 팁</div>
+            <div class="chips" id="favor-chips"></div>
+            <div class="story" id="daily-text"></div>
+            <div id="daily-tips"></div>
+          </div>
+          <div id="ch-nature" style="display:none;margin-top:14px">
+            <div class="sec" style="font-size:14px">당신은 이런 사람</div>
+            <div id="nature"></div>
+          </div>
+        </details>
+      </div>
+
+      <a class="btn link-btn" href="total-today.html">오늘의 총운으로 이어보기</a>
+      <p class="meta" id="disc" style="margin-top:14px"></p>
+    </div>
+  </div>
+  <script>
+  (function () {
+    window.SiteNav.mount('full-saju');
+    var SE = window.SajuEngine, BD = window.BirthDate, TF = window.TotalFortune;
+    var birth = document.getElementById('birth');
+    birth.max = SE.todayDateStr();
+    var field = BD.enhance({ name: 'full-cal', dateInput: birth, mountEl: document.getElementById('cal') });
+    var saved = BD.loadBirth();
+    if (saved) BD.applySaved(field, birth, saved);
+    try {
+      var prof = JSON.parse(localStorage.getItem('fortune_profile') || '{}');
+      if (prof.name) document.getElementById('name').value = prof.name;
+      if (prof.gender) document.getElementById('gender').value = prof.gender;
+      if (prof.time) document.getElementById('time').value = prof.time;
+    } catch (e) {}
+
+    function chapterById(story, id) {
+      if (!story || !story.chapters) return null;
+      for (var i = 0; i < story.chapters.length; i++) {
+        if (story.chapters[i].id === id) return story.chapters[i];
+      }
+      return null;
+    }
+
+    function show() {
+      try {
+        var v = field.getValue();
+        if (!v.ok) {
+          alert(v.error || '생년월일을 확인해 주세요');
+          return;
+        }
+        BD.saveBirth(v);
+        var name = document.getElementById('name').value.trim();
+        var gender = document.getElementById('gender').value;
+        var time = document.getElementById('time').value || null;
+        try {
+          localStorage.setItem('fortune_profile', JSON.stringify({ name: name, gender: gender, time: time || '' }));
+        } catch (e) {}
+
+        var r = TF.getFullSajuReading({ solarDate: v.solar, time: time, name: name, gender: gender });
+        if (!r || !r.saju) {
+          alert('사주 계산에 실패했습니다. 새로고침 후 다시 시도해 주세요.');
+          return;
+        }
+
+        var s = r.saju;
+        var G = r.guide;
+        var story = G && G.story;
+        var nowCh = chapterById(story, 'now');
+        var luckCh = chapterById(story, 'luck');
+        var faqCh = chapterById(story, 'faq');
+        var lifeCh = chapterById(story, 'chapters');
+        var dailyCh = chapterById(story, 'daily');
+
+        document.getElementById('disc').textContent = r.disclaimer || '';
+
+        /* 스냅샷 */
+        if (nowCh && nowCh.domains && nowCh.domains.length) {
+          document.getElementById('ch-snap').style.display = 'block';
+          document.getElementById('snap-title').textContent =
+            (name ? name + '님, ' : '') + '지금 운세';
+          document.getElementById('snap-sub').textContent =
+            (G ? '만나이 ' + G.age + '세 · ' : '') + s.year.animal + '띠 · ' +
+            (v.calendar === 'lunar' ? '음력 ' : '양력 ') + v.solar.replace(/-/g, '.');
+
+          var grade = G && G.domains && G.domains.scores ? G.domains.scores.grade : '보통';
+          var badge = document.getElementById('snap-badge');
+          badge.textContent = grade === '길' ? '문이 열린 편' : grade === '주의' ? '힘 아끼기' : '가꾸는 때';
+          badge.className = 'badge' + (grade === '길' ? ' up' : grade === '주의' ? ' down' : '');
+
+          var meters = document.getElementById('meters');
+          meters.innerHTML = nowCh.domains.map(function (d) {
+            return '<div class="meter">' +
+              '<div class="lab">' + d.title.replace('운', '') + '</div>' +
+              '<div class="track"><div class="fill ' + d.tone + '" data-pct="' + d.pct + '"></div></div>' +
+              '<div class="pct">' + d.grade + '</div></div>' +
+              '<div class="meter-tip">' + d.text + '</div>';
+          }).join('');
+
+          requestAnimationFrame(function () {
+            var fills = meters.querySelectorAll('.fill');
+            for (var i = 0; i < fills.length; i++) {
+              fills[i].style.width = fills[i].getAttribute('data-pct') + '%';
+            }
+          });
+
+          var hl = document.getElementById('highlights');
+          var bits = (nowCh.highlights || []).slice();
+          if (r.opening) bits.unshift(r.opening);
+          hl.innerHTML = bits.slice(0, 3).map(function (t) {
+            return '<span>' + t + '</span>';
+          }).join('');
+        } else {
+          document.getElementById('ch-snap').style.display = 'none';
+        }
+
+        /* 왜 */
+        if (nowCh) {
+          document.getElementById('ch-now').style.display = 'block';
+          document.getElementById('now-text').textContent = nowCh.text || '';
+          var boxes = [];
+          boxes.push('<div class="pbox"><div class="k">년</div><div class="v">' + s.year.pillar + '</div></div>');
+          if (s.month) boxes.push('<div class="pbox"><div class="k">월</div><div class="v">' + s.month.pillar + '</div></div>');
+          boxes.push('<div class="pbox"><div class="k">일</div><div class="v">' + s.day.pillar + '</div></div>');
+          if (s.hour) boxes.push('<div class="pbox"><div class="k">시</div><div class="v">' + s.hour.pillar + '</div></div>');
+          var grid = document.getElementById('pillars');
+          grid.className = 'pillars' + (boxes.length === 2 ? ' two' : boxes.length === 3 ? ' three' : '');
+          grid.innerHTML = boxes.join('');
+          document.getElementById('meta').textContent = '사주 원국 · 참고용';
+        } else {
+          document.getElementById('ch-now').style.display = 'none';
+        }
+
+        /* 타이밍 */
+        if (luckCh) {
+          document.getElementById('ch-luck').style.display = 'block';
+          document.getElementById('luck-text').textContent = luckCh.text || '';
+          var chips = [];
+          (luckCh.best || []).forEach(function (x) {
+            var pin = x.pinpoint && x.pinpoint.yearLabel ? x.pinpoint.yearLabel : x.label;
+            chips.push('<span class="ychip">힘 붙음 · ' + pin + '</span>');
+          });
+          (luckCh.careful || []).forEach(function (x) {
+            var pin = x.pinpoint && x.pinpoint.care && x.pinpoint.care.length
+              ? x.pinpoint.care.map(function (c) { return c.year + '년'; }).join(', ')
+              : x.label;
+            chips.push('<span class="ychip care">조심 · ' + pin + '</span>');
+          });
+          if (luckCh.farBest && luckCh.farBest.length) {
+            chips.push('<span class="ychip far">먼 참고 · ' + luckCh.farBest[0].label + '</span>');
+          }
+          document.getElementById('luck-years').innerHTML = chips.join('');
+        } else {
+          document.getElementById('ch-luck').style.display = 'none';
+        }
+
+        /* FAQ */
+        if (faqCh && faqCh.items) {
+          document.getElementById('ch-faq').style.display = 'block';
+          document.getElementById('faq-lead').textContent = faqCh.text || '';
+          document.getElementById('faq-list').innerHTML = faqCh.items.map(function (it) {
+            return '<div class="faq-item"><div class="q">' + it.icon + ' ' + it.q + '</div>' +
+              '<div class="when">' + it.when + '</div>' +
+              '<div class="tip">' + it.tip + '</div></div>';
+          }).join('');
+        } else {
+          document.getElementById('ch-faq').style.display = 'none';
+        }
+
+        /* 더보기 */
+        var hasMore = false;
+        if (lifeCh && lifeCh.lifeChapters && lifeCh.lifeChapters.length) {
+          hasMore = true;
+          document.getElementById('ch-life').style.display = 'block';
+          document.getElementById('life-lead').textContent = lifeCh.text || '';
+          document.getElementById('life-list').innerHTML = lifeCh.lifeChapters.map(function (c) {
+            return '<div class="chapter"><div class="t">' + c.title + '</div><div class="b">' + c.text + '</div></div>';
+          }).join('');
+        } else {
+          document.getElementById('ch-life').style.display = 'none';
+        }
+
+        if (dailyCh) {
+          hasMore = true;
+          document.getElementById('ch-daily').style.display = 'block';
+          document.getElementById('daily-text').textContent = dailyCh.text || '';
+          document.getElementById('favor-chips').innerHTML =
+            (dailyCh.colors || []).map(function (c) { return '<span>' + c + '</span>'; }).join('') +
+            (dailyCh.directions || []).map(function (d) { return '<span>' + d + '</span>'; }).join('');
+          document.getElementById('daily-tips').innerHTML = (dailyCh.remedies || []).map(function (it) {
+            return '<div class="block"><span class="l">' + it.title + '</span>' + it.text + '</div>';
+          }).join('');
+        } else {
+          document.getElementById('ch-daily').style.display = 'none';
+        }
+
+        var natureHtml = '';
+        if (r.oheng) {
+          natureHtml += r.oheng.sections.slice(0, 2).map(function (sec) {
+            return '<div class="block"><span class="l">' + sec.label + '</span>' + sec.text + '</div>';
+          }).join('');
+        }
+        if (r.animal && r.animal.reading) {
+          natureHtml += '<div class="block"><span class="l">' + s.year.animal + '띠</span>' +
+            r.animal.reading.opening + '</div>';
+        }
+        if (r.star && r.star.reading) {
+          natureHtml += '<div class="block"><span class="l">별자리</span>' +
+            r.star.reading.opening + '</div>';
+        }
+        if (natureHtml) {
+          hasMore = true;
+          document.getElementById('ch-nature').style.display = 'block';
+          document.getElementById('nature').innerHTML = natureHtml;
+        } else {
+          document.getElementById('ch-nature').style.display = 'none';
+        }
+        document.getElementById('more-box').style.display = hasMore ? 'block' : 'none';
+
+        document.getElementById('result').classList.add('show');
+        document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        console.error(err);
+        alert('풀이 중 오류가 났습니다. 새로고침(Cmd+Shift+R) 후 다시 시도해 주세요.');
+      }
+    }
+    document.getElementById('btn').addEventListener('click', show);
+  })();
+  </script>
+</body>
+</html>

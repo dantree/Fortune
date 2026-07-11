@@ -3,31 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="생년월일로 보는 내 일간 오행 성격 카드.">
+  <meta name="description" content="일간 오행 성격을 전문가 톤으로 자세히 풀어 드립니다.">
   <title>내 오행 성격 | 사주 도구</title>
-  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
-  <script src="../js/birth-date.js"></script>
-  <script src="../js/saju-engine.js"></script>
-  <script src="../js/site.js"></script>
+  <script src="../js/vendor/korean-lunar-calendar.min.js?v=1.4"></script>
+  <script src="../js/birth-date.js?v=1.4"></script>
+  <script src="../js/solar-terms.js?v=1.4"></script>
+  <script src="../js/saju-engine.js?v=1.4"></script>
+  <script src="../js/oheng-story.js?v=1.3"></script>
+  <script src="../js/zodiac-compat.js?v=1.3"></script>
+  <script src="../js/site.js?v=1.3"></script>
   <style>
     :root {
       --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff;
-      --wood:#4caf50; --fire:#f44336; --earth:#eab308; --metal:#64748b; --water:#2196f3;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
-    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 28px; }
+    .app { max-width: 480px; margin: 0 auto; padding: 16px 16px 28px; }
     h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-    .hero { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
-    .card { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 4px 18px rgba(107,78,255,.1); margin-bottom: 14px; }
+    .hero { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.55; }
+    .card { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 4px 18px rgba(107,78,255,.1); margin-bottom: 12px; }
     label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
     input[type=date] { width: 100%; padding: 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 16px; margin-bottom: 10px; }
     .btn { width: 100%; padding: 13px; border: none; border-radius: 12px; background: linear-gradient(135deg,#6b4eff,#9333ea); color:#fff; font-weight:800; font-size:15px; cursor:pointer; }
     .result { display: none; }
     .result.show { display: block; }
-    .hero-oh {
-      border-radius: 18px; padding: 24px 18px; text-align: center; color: #fff; margin-bottom: 12px;
-    }
+    .hero-oh { border-radius: 18px; padding: 24px 18px; text-align: center; color: #fff; margin-bottom: 12px; }
     .hero-oh.wood{background:linear-gradient(145deg,#166534,#4caf50)}
     .hero-oh.fire{background:linear-gradient(145deg,#9f1239,#f44336)}
     .hero-oh.earth{background:linear-gradient(145deg,#a16207,#eab308);color:#1a1a2e}
@@ -35,36 +35,44 @@
     .hero-oh.water{background:linear-gradient(145deg,#1e3a8a,#2196f3)}
     .hero-oh .big { font-size: 40px; font-weight: 900; letter-spacing: 2px; }
     .hero-oh .sub { margin-top: 6px; font-size: 14px; opacity: .95; }
-    .traits { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
-    .traits span { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: #ede9fe; color: #4c1d95; }
-    .block { font-size: 14px; line-height: 1.7; color: #374151; padding: 12px; background: #fafafa; border-radius: 10px; margin-bottom: 8px; }
-    .block b { color: var(--text); }
+    .hero-oh .nick { margin-top: 4px; font-size: 13px; opacity: .9; }
+    .traits { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+    .traits span { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.22); }
+    .sec { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+    .block { font-size: 14px; line-height: 1.8; color: #374151; margin-bottom: 12px; }
+    .block .l { display: block; font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .meta { font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; }
   </style>
 </head>
 <body>
   <div class="app">
     <div id="site-top"></div>
     <h1>🌿 내 오행 성격</h1>
-    <p class="hero">일간(日干) 오행으로 보는 나의 기본 기운</p>
+    <p class="hero">일간(日干) 오행을 철학관 풀이처럼<br>기질·연애·일·그늘까지 자세히 풀어 드립니다.</p>
 
     <div class="card">
       <label>달력</label>
       <div id="cal-mount"></div>
       <label for="birth">생년월일</label>
       <input type="date" id="birth" min="1900-01-01" max="2050-12-31">
-      <button type="button" class="btn" id="btn">성격 보기</button>
+      <button type="button" class="btn" id="btn">자세히 풀이 보기</button>
     </div>
 
     <div class="result" id="result">
       <div class="hero-oh" id="hero">
         <div class="big" id="pillar">—</div>
         <div class="sub" id="oheng-label"></div>
+        <div class="nick" id="nick"></div>
+        <div class="traits" id="traits"></div>
       </div>
       <div class="card">
-        <div class="traits" id="traits"></div>
-        <div class="block" id="desc"></div>
-        <div class="block" id="style"></div>
-        <div class="block" id="tip"></div>
+        <div class="sec">📜 오행 전문가 해설</div>
+        <div id="story"></div>
+        <p class="meta" id="meta"></p>
+      </div>
+      <div class="card" id="animal-card" style="display:none">
+        <div class="sec">🐉 띠 기운도 함께</div>
+        <div id="animal"></div>
       </div>
     </div>
   </div>
@@ -73,6 +81,8 @@
     window.SiteNav.mount('oheng-me');
     var SE = window.SajuEngine;
     var BD = window.BirthDate;
+    var OS = window.OhengStory;
+    var ZC = window.ZodiacCompat;
     var birth = document.getElementById('birth');
     birth.max = SE.todayDateStr();
     var field = BD.enhance({
@@ -83,54 +93,42 @@
     var saved = BD.loadBirth();
     if (saved) BD.applySaved(field, birth, saved);
 
-    var EXTRA = {
-      wood: {
-        traits: ['성장', '시작', '추진', '아이디어'],
-        style: '새로운 걸 시작하고 키우는 힘이 강합니다. 답답한 틀보다 확장에 끌립니다.',
-        tip: '속도만 조절하면 주변도 함께 성장합니다.'
-      },
-      fire: {
-        traits: ['열정', '표현', '리더십', '밝음'],
-        style: '분위기를 밝히고 사람을 끌어당깁니다. 감정과 에너지가 빠르게 움직입니다.',
-        tip: '쉬는 타이밍을 정해두면 불꽃이 오래갑니다.'
-      },
-      earth: {
-        traits: ['안정', '신뢰', '현실', '포용'],
-        style: '중심을 잡고 주변을 돌봅니다. 약속과 책임을 중요하게 여깁니다.',
-        tip: '거절도 배려입니다. 짐을 나눠 지세요.'
-      },
-      metal: {
-        traits: ['원칙', '결단', '정리', '기준'],
-        style: '명확한 기준과 깔끔한 마무리가 강점입니다. 애매함을 싫어합니다.',
-        tip: '유연함을 조금 더하면 관계가 부드러워집니다.'
-      },
-      water: {
-        traits: ['지혜', '직관', '유연', '깊이'],
-        style: '흐름을 읽고 상황에 맞춰 움직입니다. 속마음이 깊습니다.',
-        tip: '결정을 미루기보다, 작은 선택부터 해보세요.'
-      }
-    };
-
     function show() {
       var v = field.getValue();
       if (!v.ok) return;
       BD.saveBirth(v);
       var day = SE.getDayPillar(v.solar);
       var year = SE.getYearPillar(v.solar);
-      var x = EXTRA[day.oheng.type];
+      var story = OS.getOhengStory(day.oheng.type, day.stem);
       var hero = document.getElementById('hero');
       hero.className = 'hero-oh ' + day.oheng.type;
       document.getElementById('pillar').textContent = day.pillar;
       document.getElementById('oheng-label').textContent =
-        day.oheng.icon + ' ' + day.oheng.labelKo + '(' + day.oheng.hanja + ') · ' + year.animal + '띠' +
-        (v.calendar === 'lunar' ? ' · 양력 ' + v.solar.replace(/-/g, '.') : '');
-      document.getElementById('traits').innerHTML = x.traits.map(function (t) {
-        return '<span>' + t + '</span>';
+        day.oheng.icon + ' ' + story.title;
+      document.getElementById('nick').textContent = story.nick;
+      document.getElementById('traits').innerHTML = story.keywords.map(function (t) {
+        return '<span>#' + t + '</span>';
       }).join('');
-      document.getElementById('desc').innerHTML = '<b>일간</b><br>' + day.description;
-      document.getElementById('style').innerHTML = '<b>성향</b><br>' + x.style;
-      document.getElementById('tip').innerHTML = '<b>한 줄 팁</b><br>' + x.tip;
+      document.getElementById('story').innerHTML = story.sections.map(function (s) {
+        return '<div class="block"><span class="l">' + s.label + '</span>' + s.text + '</div>';
+      }).join('');
+      document.getElementById('meta').textContent =
+        (v.calendar === 'lunar' ? '음력 ' : '양력 ') + v.date.replace(/-/g, '.') +
+        ' → 양력 ' + v.solar.replace(/-/g, '.') + ' · ' + year.animal + '띠';
+
+      var ar = ZC.getAnimalProfileReading(year.animal);
+      if (ar) {
+        document.getElementById('animal-card').style.display = 'block';
+        var A = ar.reading;
+        document.getElementById('animal').innerHTML =
+          '<div class="block"><span class="l">총평</span>' + A.opening + '</div>' +
+          '<div class="block"><span class="l">기질</span>' + A.nature + '</div>' +
+          '<div class="block"><span class="l">강점·그늘</span>' + A.strength + ' ' + A.shadow + '</div>' +
+          '<div class="block"><span class="l">삶·관계</span>' + A.life + '</div>';
+      }
+
       document.getElementById('result').classList.add('show');
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     document.getElementById('btn').addEventListener('click', show);

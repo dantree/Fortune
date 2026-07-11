@@ -6,7 +6,8 @@
   <title>계산 검증 | 사주 도구</title>
   <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
   <script src="../js/birth-date.js"></script>
-  <script src="../js/saju-engine.js"></script>
+  <script src="../js/solar-terms.js?v=1.4"></script>
+  <script src="../js/saju-engine.js?v=1.4"></script>
   <script src="../js/mbti-compat.js"></script>
   <script src="../js/zodiac-compat.js"></script>
   <script src="../js/site.js"></script>
@@ -58,14 +59,38 @@
 
     var tbody = document.querySelector('#cases tbody');
     SE.VERIFY_CASES.forEach(function (tc) {
+      if (tc.hour) {
+        var h = SE.getHourPillar(tc.date, tc.time);
+        var okH = h && h.pillar === tc.hour;
+        var trH = document.createElement('tr');
+        trH.innerHTML = '<td>' + tc.date + ' ' + tc.time + '</td><td colspan="3">시주 ' + (h && h.pillar) +
+          '</td><td class="' + (okH ? 'pass">PASS' : 'err">FAIL') + '</td>';
+        tbody.appendChild(trH);
+        return;
+      }
       var day = SE.getDayPillar(tc.date);
-      var year = SE.getYearPillar(tc.date);
+      var year = SE.getYearPillar(tc.date, tc.time || null);
       var ok = day.pillar === tc.day && year.animal === tc.yearAnimal && year.sajuYear === tc.sajuYear;
+      if (tc.month) {
+        var mo = SE.getMonthPillar(tc.date, tc.time || null);
+        ok = ok && mo && mo.pillar === tc.month;
+      }
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + tc.date + '</td><td>' + day.pillar + '</td><td>' + year.animal +
+      tr.innerHTML = '<td>' + tc.date + (tc.time ? ' ' + tc.time : '') + '</td><td>' + day.pillar +
+        (tc.month && SE.getMonthPillar(tc.date) ? ' / ' + SE.getMonthPillar(tc.date).pillar : '') +
+        '</td><td>' + year.animal +
         '</td><td>' + year.sajuYear + '</td><td class="' + (ok ? 'pass">PASS' : 'err">FAIL') + '</td>';
       tbody.appendChild(tr);
     });
+
+    if (window.SolarTerms) {
+      var lichun = SolarTerms.getLichun(2000);
+      var panel = document.createElement('div');
+      panel.className = 'panel';
+      panel.innerHTML = '<strong>SolarTerms</strong><br>2000 입춘 KST: ' + lichun.kst.dateTimeStr +
+        ' · 1990-05-15 월주: ' + SE.getMonthPillar('1990-05-15').pillar;
+      document.querySelector('.wrap').appendChild(panel);
+    }
 
     var mbtiOk = true;
     var asym = 0;
