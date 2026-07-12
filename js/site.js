@@ -5,6 +5,9 @@
 (function (global) {
   'use strict';
 
+  var BRAND =
+    (global.FORTUNE_CONFIG && global.FORTUNE_CONFIG.brandName) || '사주칼퇴리';
+
   var TOOLS = [
     { id: 'home', title: '홈', desc: '', href: 'index.html', nav: '홈', public: false },
     {
@@ -186,7 +189,7 @@
     if (!el) return;
     var home = resolveHref('index.html');
     el.innerHTML =
-      '<a class="site-brand" href="' + home + '">🔮 사주 도구</a>' +
+      '<a class="site-brand" href="' + home + '">🔮 ' + BRAND + '</a>' +
       (activeId !== 'home' ? '<a class="site-back" href="' + home + '">← 메뉴</a>' : '');
   }
 
@@ -244,6 +247,7 @@
   }
 
   global.SiteNav = {
+    BRAND: BRAND,
     TOOLS: TOOLS,
     GROUPS: GROUPS,
     publicTools: publicTools,

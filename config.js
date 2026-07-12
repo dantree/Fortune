@@ -2,6 +2,9 @@
  * ★★★ 여기만 수정하세요 ★★★
  */
 window.FORTUNE_CONFIG = {
+  // 브랜드명 (마케팅·SEO)
+  brandName: '사주칼퇴리',
+
   // 도구 주소 (배포 후 그대로 두면 됨)
   siteUrl: 'https://saju.kaltaelee.com',
 

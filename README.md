@@ -1,4 +1,4 @@
-# 사주 도구 (Fortune)
+# 사주칼퇴리 (Fortune)
 
 에버그린 도구형 콘텐츠 · GitHub Pages · `saju.kaltaelee.com`
 
