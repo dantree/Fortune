@@ -29,10 +29,10 @@
     "inLanguage": "ko-KR"
   }
   </script>
-  <script src="config.js"></script>
-  <script src="js/solar-terms.js?v=3.1"></script>
-  <script src="js/saju-engine.js?v=3.1"></script>
-  <script src="js/site.js?v=3.1"></script>
+  <script src="config.js?v=3.2"></script>
+  <script src="js/solar-terms.js?v=3.2"></script>
+  <script src="js/saju-engine.js?v=3.2"></script>
+  <script src="js/site.js?v=3.2"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9648839818105934" crossorigin="anonymous"></script>
   <style>
     :root {
@@ -55,7 +55,7 @@
     .wrap { max-width: 480px; margin: 0 auto; padding: 16px 16px 28px; }
     .hook {
       border-radius: 20px;
-      padding: 20px 18px 18px;
+      padding: 22px 18px 18px;
       margin-bottom: 10px;
       color: #fff;
       background:
@@ -63,13 +63,19 @@
         linear-gradient(150deg, #4c1d95, #6b4eff 50%, #7c3aed);
       box-shadow: 0 10px 28px rgba(76, 29, 149, .25);
     }
-    .hook-kicker { font-size: 11px; font-weight: 700; opacity: .85; letter-spacing: 0.02em; }
-    .hook h1 { font-size: 22px; font-weight: 800; margin: 6px 0 10px; line-height: 1.3; }
+    .hook-brand {
+      font-size: 28px; font-weight: 900; letter-spacing: -0.04em;
+      line-height: 1.15; margin: 0 0 8px;
+    }
+    .hook-tagline {
+      font-size: 14px; font-weight: 600; opacity: .92;
+      line-height: 1.45; margin: 0 0 14px;
+    }
     .hook-day {
       display: inline-block;
       font-size: 13px; font-weight: 700;
       background: rgba(255,255,255,.18);
-      padding: 6px 11px; border-radius: 999px; margin-bottom: 12px;
+      padding: 6px 11px; border-radius: 999px; margin-bottom: 14px;
     }
     .hook-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .hook-btn {
@@ -94,8 +100,8 @@
     <div id="site-top"></div>
 
     <section class="hook">
-      <div class="hook-kicker">사주칼퇴리 · TODAY</div>
-      <h1>오늘 내 흐름,<br>한눈에 볼까요?</h1>
+      <h1 class="hook-brand" id="hook-brand">사주칼퇴리</h1>
+      <p class="hook-tagline">쉬운 말로 읽는 오늘 운 · 풀사주 · 궁합</p>
       <div class="hook-day" id="hook-day">…</div>
       <div class="hook-row">
         <a class="hook-btn primary" href="tools/total-today.html">☀️ 총운</a>
@@ -122,6 +128,9 @@
   <script>
   (function () {
     window.SiteNav.mount('home');
+    var brand = (window.FORTUNE_CONFIG && window.FORTUNE_CONFIG.brandName) ||
+      (window.SiteNav && window.SiteNav.BRAND) || '사주칼퇴리';
+    document.getElementById('hook-brand').textContent = brand;
     var SE = window.SajuEngine;
     var today = SE.todayDateStr();
     var day = SE.getDayPillar(today);

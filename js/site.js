@@ -154,7 +154,7 @@
     if (global.document.getElementById('site-nav-styles')) return;
     var css = [
       '.site-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}',
-      '.site-brand{font-size:13px;font-weight:700;color:#6b4eff;text-decoration:none;}',
+      '.site-brand{font-size:15px;font-weight:850;color:#6b4eff;text-decoration:none;letter-spacing:-0.02em;}',
       '.site-back{font-size:13px;color:#6b7280;text-decoration:none;}',
       '.site-hub{display:flex;flex-direction:column;gap:14px;margin-top:2px;}',
       '.site-group-label{font-size:12px;font-weight:700;color:#6b7280;margin:0 0 8px;}',
