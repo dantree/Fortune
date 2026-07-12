@@ -1,4 +1,4 @@
-# 사주칼퇴리 계산 기준
+# 운세리 계산 기준
 
 > 엔진 버전: `SajuEngine` v1.2.0 (+ `SolarTerms`)  
 > 원칙: **결정론(Deterministic)** — 같은 입력은 항상 같은 결과.

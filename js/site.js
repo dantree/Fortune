@@ -6,7 +6,7 @@
   'use strict';
 
   var BRAND =
-    (global.FORTUNE_CONFIG && global.FORTUNE_CONFIG.brandName) || '사주칼퇴리';
+    (global.FORTUNE_CONFIG && global.FORTUNE_CONFIG.brandName) || '운세리';
 
   var TOOLS = [
     { id: 'home', title: '홈', desc: '', href: 'index.html', nav: '홈', public: false },
