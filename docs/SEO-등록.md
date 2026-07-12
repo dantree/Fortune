@@ -23,12 +23,23 @@
 ## 2. 네이버 서치어드바이저
 
 1. [네이버 서치어드바이저](https://searchadvisor.naver.com/) 접속 · 로그인
-2. **웹마스터 도구** → 사이트 추가 → `https://saju.kaltaelee.com`
-3. 소유 확인 (HTML 파일 또는 meta 태그 — Google과 동일하게 루트/`index.html`에 반영 후 push)
-4. **요청** → 사이트맵 제출: `https://saju.kaltaelee.com/sitemap.xml`
-5. (선택) RSS가 있으면 함께 등록. 지금은 사이트맵만으로 충분합니다.
+2. 사이트 `https://saju.kaltaelee.com` 선택 (소유 확인 완료 후)
+3. 왼쪽 **요청** 메뉴
+4. **사이트맵 제출**에 아래 주소 그대로 입력 후 확인  
+   `https://saju.kaltaelee.com/sitemap.xml`
+5. **RSS 제출**에 아래 주소 입력 후 확인  
+   `https://saju.kaltaelee.com/rss.xml`
 
-> 네이버는 수집이 느릴 수 있어요. 블로그·카페에 `운세리` + 링크를 꾸준히 거는 편이 도움이 됩니다.
+> 사이트맵 = 어떤 페이지가 있는지 목록  
+> RSS = 네이버가 주기적으로 훑어볼 최신 글/도구 피드  
+> 둘 다 “파일을 만드는 것”은 이미 됐고, 콘솔에 **URL만 붙여 넣으면** 됩니다.
+
+브라우저에서 먼저 열어 보세요.
+
+- https://saju.kaltaelee.com/sitemap.xml
+- https://saju.kaltaelee.com/rss.xml
+
+XML이 보이면 정상입니다. 그다음 네이버에 제출하세요.
 
 ---
 

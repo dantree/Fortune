@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>운세리</title>
+    <link>https://saju.kaltaelee.com/</link>
+    <description>쉬운 말로 읽는 오늘 운·풀사주·궁합</description>
+    <language>ko</language>
+    <lastBuildDate>Sun, 12 Jul 2026 02:00:00 GMT</lastBuildDate>
+    <item>
+      <title>풀사주 — 직장·사업·애정·건강운</title>
+      <link>https://saju.kaltaelee.com/tools/full-saju.html</link>
+      <guid>https://saju.kaltaelee.com/tools/full-saju.html</guid>
+      <description>이름·성별·생년월일로 보는 풀사주. 지금 운과 움직일 해를 쉽게.</description>
+      <pubDate>Sun, 12 Jul 2026 02:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>오늘의 총운</title>
+      <link>https://saju.kaltaelee.com/tools/total-today.html</link>
+      <guid>https://saju.kaltaelee.com/tools/total-today.html</guid>
+      <description>사주·띠·별자리를 합친 오늘의 총운.</description>
+      <pubDate>Sun, 12 Jul 2026 02:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>오늘의 운세·로또</title>
+      <link>https://saju.kaltaelee.com/tools/today.html</link>
+      <guid>https://saju.kaltaelee.com/tools/today.html</guid>
+      <description>만세력 기준 오늘의 운세와 참고용 로또 번호.</description>
+      <pubDate>Sun, 12 Jul 2026 02:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>MBTI × 사주 오행 궁합</title>
+      <link>https://saju.kaltaelee.com/mbti-oheng.html</link>
+      <guid>https://saju.kaltaelee.com/mbti-oheng.html</guid>
+      <description>생년월일과 MBTI로 보는 하이브리드 궁합.</description>
+      <pubDate>Sun, 12 Jul 2026 02:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>띠 궁합</title>
+      <link>https://saju.kaltaelee.com/tools/ddi-compat.html</link>
+      <guid>https://saju.kaltaelee.com/tools/ddi-compat.html</guid>
+      <description>입춘 기준 띠 궁합과 점수·해설.</description>
+      <pubDate>Sun, 12 Jul 2026 02:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>내 일주·시주</title>
+      <link>https://saju.kaltaelee.com/tools/ilju.html</link>
+      <guid>https://saju.kaltaelee.com/tools/ilju.html</guid>
+      <description>양력·음력·시간으로 보는 일주와 시주.</description>
+      <pubDate>Sun, 12 Jul 2026 02:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
