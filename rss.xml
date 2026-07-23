@@ -3,9 +3,23 @@
   <channel>
     <title>운세리</title>
     <link>https://saju.kaltaelee.com/</link>
-    <description>쉬운 말로 읽는 오늘 운·풀사주·궁합</description>
+    <description>쉬운 말로 읽는 오늘 운·풀사주·궁합·꿈해몽·이름 풀이</description>
     <language>ko</language>
-    <lastBuildDate>Sun, 12 Jul 2026 02:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 23 Jul 2026 10:00:00 GMT</lastBuildDate>
+    <item>
+      <title>꿈해몽 — 키워드로 쉽게</title>
+      <link>https://saju.kaltaelee.com/tools/dream.html</link>
+      <guid>https://saju.kaltaelee.com/tools/dream.html</guid>
+      <description>뱀·물·이·돈 등 꿈 키워드 풀이. AI 없이 같은 꿈은 같은 결과.</description>
+      <pubDate>Thu, 23 Jul 2026 10:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>이름 풀이 — 획수·오행</title>
+      <link>https://saju.kaltaelee.com/tools/name-reading.html</link>
+      <guid>https://saju.kaltaelee.com/tools/name-reading.html</guid>
+      <description>한글 이름 획수와 오행으로 읽는 이름 풀이.</description>
+      <pubDate>Thu, 23 Jul 2026 10:00:00 GMT</pubDate>
+    </item>
     <item>
       <title>풀사주 — 직장·사업·애정·건강운</title>
       <link>https://saju.kaltaelee.com/tools/full-saju.html</link>

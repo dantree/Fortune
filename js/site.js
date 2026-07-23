@@ -113,6 +113,30 @@
       group: 'me'
     },
     {
+      id: 'dream',
+      title: '꿈해몽',
+      desc: '키워드로 쉽게',
+      href: 'tools/dream.html',
+      emoji: '🌙',
+      tag: '인기',
+      nav: null,
+      public: true,
+      hub: true,
+      group: 'life'
+    },
+    {
+      id: 'name-reading',
+      title: '이름 풀이',
+      desc: '획수 · 오행',
+      href: 'tools/name-reading.html',
+      emoji: '✍️',
+      tag: 'NEW',
+      nav: null,
+      public: true,
+      hub: true,
+      group: 'life'
+    },
+    {
       id: 'verify',
       title: '계산 검증',
       desc: '개발용',
@@ -126,7 +150,8 @@
   var GROUPS = [
     { id: 'today', label: '오늘' },
     { id: 'compat', label: '궁합' },
-    { id: 'me', label: '나에 대해' }
+    { id: 'me', label: '나에 대해' },
+    { id: 'life', label: '일상 풀이' }
   ];
 
   function basePrefix() {

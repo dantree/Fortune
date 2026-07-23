@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="운세리 이름 풀이 — 한글 획수·오행으로 보는 내 이름. AI 없이 같은 이름은 같은 결과.">
+  <title>이름 풀이 | 운세리</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32.png?v=1">
+  <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16.png?v=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon-180.png?v=1">
+  <meta name="theme-color" content="#6b4eff">
+  <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
+  <script src="../js/name-reading.js?v=1.0"></script>
+  <script src="../js/site.js?v=4.1"></script>
+  <style>
+    :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; }
+    .app { max-width:480px; margin:0 auto; padding:16px 16px 32px; }
+    h1 { font-size:22px; font-weight:850; margin-bottom:6px; letter-spacing:-0.02em; }
+    .hero { font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55; }
+    .card { background:#fff; border-radius:16px; padding:18px; box-shadow:0 6px 22px rgba(107,78,255,.08); margin-bottom:12px; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    input {
+      width:100%; padding:12px; border:1.5px solid #e5e7eb; border-radius:12px;
+      font-size:16px; background:#fafafa; margin-bottom:12px;
+    }
+    .row { display:grid; grid-template-columns:1fr 2fr; gap:8px; }
+    .btn {
+      width:100%; padding:14px; border:none; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;
+      background:linear-gradient(135deg,#5b4fe8,#7c3aed); color:#fff;
+    }
+    .result { display:none; } .result.show { display:block; }
+    .hero-name {
+      text-align:center; padding:20px 12px; border-radius:16px;
+      background:linear-gradient(150deg,#4c1d95,#6b4eff 55%,#7c3aed); color:#fff; margin-bottom:14px;
+    }
+    .hero-name .n { font-size:28px; font-weight:900; letter-spacing:-0.03em; }
+    .hero-name .s { font-size:13px; opacity:.9; margin-top:6px; }
+    .meters { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+    .meter { display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f8fafc; border-radius:12px; }
+    .meter .k { font-size:13px; font-weight:800; color:var(--primary); }
+    .meter .v { font-size:14px; font-weight:850; }
+    .block { font-size:14px; line-height:1.75; color:#374151; margin-bottom:12px; }
+    .block .l { display:block; font-size:12px; font-weight:800; color:var(--primary); margin-bottom:4px; }
+    .note { font-size:12px; color:var(--muted); line-height:1.55; }
+    .err { color:#c2410c; font-size:14px; margin-top:8px; display:none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="site-top"></div>
+    <h1>✍️ 이름 풀이</h1>
+    <p class="hero">지금 쓰는 한글 이름을 획수·오행으로 읽습니다.<br>AI 없이 같은 이름은 같은 결과.</p>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="surname">성</label>
+          <input type="text" id="surname" placeholder="김" maxlength="2">
+        </div>
+        <div>
+          <label for="given">이름</label>
+          <input type="text" id="given" placeholder="민수" maxlength="4">
+        </div>
+      </div>
+      <label for="fullname">또는 이름 전체</label>
+      <input type="text" id="fullname" placeholder="예: 김민수" maxlength="6">
+      <button type="button" class="btn" id="btn">내 이름 풀이 보기</button>
+      <div class="err" id="err"></div>
+    </div>
+
+    <div class="card result" id="result">
+      <div class="hero-name">
+        <div class="n" id="r-name">—</div>
+        <div class="s" id="r-sum"></div>
+      </div>
+      <div class="meters">
+        <div class="meter"><span class="k">이름 기운</span><span class="v" id="r-oheng"></span></div>
+        <div class="meter"><span class="k">한글 획수 합</span><span class="v" id="r-stroke"></span></div>
+        <div class="meter"><span class="k">수리 분위기</span><span class="v" id="r-tone"></span></div>
+      </div>
+      <div class="block"><span class="l">한 줄로</span><span id="r-nature"></span></div>
+      <div class="block"><span class="l">획수로 보면</span><span id="r-stroke-line"></span></div>
+      <div class="block"><span class="l">글자별</span><span id="r-parts"></span></div>
+      <p class="note" id="r-disc"></p>
+      <p style="margin-top:12px;font-size:13px">
+        <a href="full-saju.html" style="color:var(--primary);font-weight:700;text-decoration:none">📖 사주와 함께 보기 →</a>
+      </p>
+    </div>
+  </div>
+  <script>
+  (function () {
+    window.SiteNav.mount('name-reading');
+    var NR = window.NameReading;
+
+    function show() {
+      var surname = document.getElementById('surname').value.trim();
+      var given = document.getElementById('given').value.trim();
+      var full = document.getElementById('fullname').value.trim();
+      var err = document.getElementById('err');
+      var r;
+      if (surname || given) {
+        r = NR.readName(surname + given, { surname: surname, given: given });
+      } else {
+        r = NR.readName(full);
+      }
+      if (!r.ok) {
+        err.style.display = 'block';
+        err.textContent = r.error;
+        document.getElementById('result').classList.remove('show');
+        return;
+      }
+      err.style.display = 'none';
+      document.getElementById('result').classList.add('show');
+      document.getElementById('r-name').textContent = r.full;
+      document.getElementById('r-sum').textContent = r.summary.replace(r.full + ' — ', '');
+      document.getElementById('r-oheng').textContent = r.mainOheng.icon + ' ' + r.mainOheng.ko;
+      document.getElementById('r-stroke').textContent = r.totalStroke + '획 · ' + r.strokeOheng.ko;
+      document.getElementById('r-tone').textContent = r.tone.ko;
+      document.getElementById('r-nature').textContent = r.nature;
+      document.getElementById('r-stroke-line').textContent = r.strokeLine;
+      document.getElementById('r-parts').textContent = r.partsLine;
+      document.getElementById('r-disc').textContent = r.disclaimer;
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.getElementById('btn').addEventListener('click', show);
+    ['fullname', 'surname', 'given'].forEach(function (id) {
+      document.getElementById(id).addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') show();
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

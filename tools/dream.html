@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="운세리 꿈해몽 — 뱀·물·이·돈 등 키워드로 쉽게 읽는 꿈 풀이. AI 없이 같은 꿈은 같은 결과.">
+  <title>꿈해몽 | 운세리</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32.png?v=1">
+  <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16.png?v=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon-180.png?v=1">
+  <meta name="theme-color" content="#6b4eff">
+  <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
+  <script src="../js/dream-dict.js?v=1.0"></script>
+  <script src="../js/site.js?v=4.1"></script>
+  <style>
+    :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; }
+    .app { max-width:480px; margin:0 auto; padding:16px 16px 32px; }
+    h1 { font-size:22px; font-weight:850; margin-bottom:6px; letter-spacing:-0.02em; }
+    .hero { font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55; }
+    .card { background:#fff; border-radius:16px; padding:18px; box-shadow:0 6px 22px rgba(107,78,255,.08); margin-bottom:12px; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    textarea {
+      width:100%; min-height:96px; padding:12px; border:1.5px solid #e5e7eb; border-radius:12px;
+      font-size:16px; font-family:inherit; resize:vertical; background:#fafafa; margin-bottom:12px;
+    }
+    .btn {
+      width:100%; padding:14px; border:none; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;
+      background:linear-gradient(135deg,#5b4fe8,#7c3aed); color:#fff;
+    }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .chips button {
+      border:none; background:#eef2ff; color:#4338ca; font-size:12px; font-weight:700;
+      padding:6px 10px; border-radius:999px; cursor:pointer;
+    }
+    .result { display:none; } .result.show { display:block; }
+    .badge {
+      display:inline-block; font-size:12px; font-weight:800; padding:5px 10px; border-radius:999px;
+      background:#eef2ff; color:var(--primary); margin-bottom:10px;
+    }
+    .badge.care { background:#fff7ed; color:#c2410c; }
+    .badge.good { background:#f0fdfa; color:#0d9488; }
+    .summary { font-size:15px; line-height:1.75; font-weight:650; margin-bottom:12px; }
+    .match { padding:12px; background:#f8fafc; border-radius:12px; margin-top:8px; }
+    .match .t { font-size:14px; font-weight:800; margin-bottom:4px; }
+    .match .s { font-size:13px; color:#4b5563; line-height:1.55; }
+    .match .tip { font-size:13px; color:var(--primary); margin-top:6px; line-height:1.5; }
+    .note { font-size:12px; color:var(--muted); line-height:1.55; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="site-top"></div>
+    <h1>🌙 꿈해몽</h1>
+    <p class="hero">꿈에 나온 걸 짧게 적어 보세요.<br>AI 없이 키워드로 같은 꿈은 같은 풀이.</p>
+
+    <div class="card">
+      <label for="dream">어떤 꿈을 꿨나요?</label>
+      <textarea id="dream" placeholder="예: 뱀이 나오고 물에 빠지는 꿈"></textarea>
+      <button type="button" class="btn" id="btn">꿈 풀이 보기</button>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="card result" id="result">
+      <div class="badge" id="badge">풀이</div>
+      <div class="summary" id="summary"></div>
+      <div id="matches"></div>
+      <p class="note">참고용 풀이입니다. 같은 상징도 사람·상황에 따라 다르게 느껴질 수 있어요.</p>
+    </div>
+  </div>
+  <script>
+  (function () {
+    window.SiteNav.mount('dream');
+    var D = window.DreamDict;
+    var chips = document.getElementById('chips');
+    D.listPopular(14).forEach(function (e) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = e.emoji + ' ' + e.key;
+      b.addEventListener('click', function () {
+        var ta = document.getElementById('dream');
+        ta.value = (ta.value ? ta.value + ' ' : '') + e.key;
+        ta.focus();
+      });
+      chips.appendChild(b);
+    });
+
+    function show() {
+      var text = document.getElementById('dream').value;
+      var r = D.interpret(text);
+      var box = document.getElementById('result');
+      box.classList.add('show');
+      var badge = document.getElementById('badge');
+      if (r.ok) {
+        badge.textContent = r.overallLabel;
+        badge.className = 'badge ' + (r.overall || '');
+      } else {
+        badge.textContent = '키워드 안내';
+        badge.className = 'badge';
+      }
+      document.getElementById('summary').textContent = r.summary;
+      var html = '';
+      (r.matches || []).forEach(function (m) {
+        html += '<div class="match"><div class="t">' + m.emoji + ' ' + m.title +
+          ' · ' + m.luck + '</div><div class="s">' + m.short + '</div>' +
+          '<div class="tip">→ ' + m.tip + '</div></div>';
+      });
+      if (!r.ok && r.tips) {
+        html = '<div class="match"><div class="s">' + r.tips.join(' ') + '</div></div>';
+      }
+      document.getElementById('matches').innerHTML = html;
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.getElementById('btn').addEventListener('click', show);
+  })();
+  </script>
+</body>
+</html>
