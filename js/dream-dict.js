@@ -272,8 +272,8 @@
     for (var i = 0; i < ENTRIES.length; i++) {
       var e = ENTRIES[i];
       var keys = [e.key].concat(e.aliases || []);
-      /* 한 글자 키(특히 '이')는 조사와 섞이므로 긴 별칭만 */
-      if (e.key.length <= 1 || e.key === '이') {
+      /* '이'만 조사와 겹침 → 긴 별칭만 사용 */
+      if (e.key === '이') {
         keys = (e.aliases || []).filter(function (a) {
           return normalize(a).length >= 2;
         });
