@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="운세리 이름 풀이 — 한글 획수·오행으로 보는 내 이름. AI 없이 같은 이름은 같은 결과.">
+  <meta name="description" content="운세리 이름 풀이 — 한자 획수 성명학 참고 + 한글 간이. AI 없이 같은 선택=같은 결과.">
   <title>이름 풀이 | 운세리</title>
   <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32.png?v=1">
   <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16.png?v=1">
   <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon-180.png?v=1">
   <meta name="theme-color" content="#6b4eff">
   <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
-  <script src="../js/name-reading.js?v=1.0"></script>
+  <script src="../js/name-reading.js?v=1.1"></script>
   <script src="../js/site.js?v=4.1"></script>
   <style>
     :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
@@ -21,37 +21,43 @@
     .hero { font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55; }
     .card { background:#fff; border-radius:16px; padding:18px; box-shadow:0 6px 22px rgba(107,78,255,.08); margin-bottom:12px; }
     label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
-    input {
+    input, select {
       width:100%; padding:12px; border:1.5px solid #e5e7eb; border-radius:12px;
       font-size:16px; background:#fafafa; margin-bottom:12px;
     }
     .row { display:grid; grid-template-columns:1fr 2fr; gap:8px; }
     .btn {
       width:100%; padding:14px; border:none; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;
-      background:linear-gradient(135deg,#5b4fe8,#7c3aed); color:#fff;
+      background:linear-gradient(135deg,#5b4fe8,#7c3aed); color:#fff; margin-top:4px;
     }
-    .result { display:none; } .result.show { display:block; }
+    .btn.ghost { background:#f1f5f9; color:#334155; margin-top:8px; }
+    .result, .hanja-box { display:none; } .result.show, .hanja-box.show { display:block; }
     .hero-name {
       text-align:center; padding:20px 12px; border-radius:16px;
       background:linear-gradient(150deg,#4c1d95,#6b4eff 55%,#7c3aed); color:#fff; margin-bottom:14px;
     }
-    .hero-name .n { font-size:28px; font-weight:900; letter-spacing:-0.03em; }
+    .hero-name .n { font-size:26px; font-weight:900; letter-spacing:-0.03em; }
     .hero-name .s { font-size:13px; opacity:.9; margin-top:6px; }
     .meters { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
-    .meter { display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f8fafc; border-radius:12px; }
-    .meter .k { font-size:13px; font-weight:800; color:var(--primary); }
-    .meter .v { font-size:14px; font-weight:850; }
+    .meter { display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f8fafc; border-radius:12px; gap:8px; }
+    .meter .k { font-size:13px; font-weight:800; color:var(--primary); flex-shrink:0; }
+    .meter .v { font-size:14px; font-weight:850; text-align:right; }
     .block { font-size:14px; line-height:1.75; color:#374151; margin-bottom:12px; }
     .block .l { display:block; font-size:12px; font-weight:800; color:var(--primary); margin-bottom:4px; }
     .note { font-size:12px; color:var(--muted); line-height:1.55; }
     .err { color:#c2410c; font-size:14px; margin-top:8px; display:none; }
+    .slot { margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid #f1f5f9; }
+    .slot:last-child { border-bottom:none; margin-bottom:0; }
+    .slot .lab { font-size:13px; font-weight:800; margin-bottom:6px; }
+    .slot .miss { font-size:12px; color:#b45309; background:#fffbeb; padding:8px 10px; border-radius:10px; }
+    .mode-tag { display:inline-block; font-size:11px; font-weight:800; padding:4px 8px; border-radius:999px; background:#eef2ff; color:var(--primary); margin-bottom:10px; }
   </style>
 </head>
 <body>
   <div class="app">
     <div id="site-top"></div>
     <h1>✍️ 이름 풀이</h1>
-    <p class="hero">지금 쓰는 한글 이름을 획수·오행으로 읽습니다.<br>AI 없이 같은 이름은 같은 결과.</p>
+    <p class="hero">성명학은 <b>한자 획수</b>가 기준입니다.<br>한글만 알면 간이 풀이, 한자를 고르면 본 풀이.</p>
 
     <div class="card">
       <div class="row">
@@ -66,18 +72,26 @@
       </div>
       <label for="fullname">또는 이름 전체</label>
       <input type="text" id="fullname" placeholder="예: 김민수" maxlength="6">
-      <button type="button" class="btn" id="btn">내 이름 풀이 보기</button>
+      <button type="button" class="btn" id="btn">한자 고르기</button>
+      <button type="button" class="btn ghost" id="btn-hangul">한글만으로 간이 풀이</button>
       <div class="err" id="err"></div>
     </div>
 
+    <div class="card hanja-box" id="hanja-box">
+      <div class="mode-tag">한자 선택 (글자마다 고르세요)</div>
+      <div id="slots"></div>
+      <button type="button" class="btn" id="btn-hanja">한자 이름으로 풀이</button>
+    </div>
+
     <div class="card result" id="result">
+      <div class="mode-tag" id="r-mode">풀이</div>
       <div class="hero-name">
         <div class="n" id="r-name">—</div>
         <div class="s" id="r-sum"></div>
       </div>
       <div class="meters">
         <div class="meter"><span class="k">이름 기운</span><span class="v" id="r-oheng"></span></div>
-        <div class="meter"><span class="k">한글 획수 합</span><span class="v" id="r-stroke"></span></div>
+        <div class="meter"><span class="k">획수 합</span><span class="v" id="r-stroke"></span></div>
         <div class="meter"><span class="k">수리 분위기</span><span class="v" id="r-tone"></span></div>
       </div>
       <div class="block"><span class="l">한 줄로</span><span id="r-nature"></span></div>
@@ -93,28 +107,28 @@
   (function () {
     window.SiteNav.mount('name-reading');
     var NR = window.NameReading;
+    var suggest = null;
 
-    function show() {
+    function getInput() {
       var surname = document.getElementById('surname').value.trim();
       var given = document.getElementById('given').value.trim();
       var full = document.getElementById('fullname').value.trim();
+      if (surname || given) return { full: surname + given, surname: surname, given: given };
+      return { full: full, surname: '', given: '' };
+    }
+
+    function showErr(msg) {
       var err = document.getElementById('err');
-      var r;
-      if (surname || given) {
-        r = NR.readName(surname + given, { surname: surname, given: given });
-      } else {
-        r = NR.readName(full);
-      }
-      if (!r.ok) {
-        err.style.display = 'block';
-        err.textContent = r.error;
-        document.getElementById('result').classList.remove('show');
-        return;
-      }
-      err.style.display = 'none';
+      err.style.display = msg ? 'block' : 'none';
+      err.textContent = msg || '';
+    }
+
+    function renderResult(r) {
       document.getElementById('result').classList.add('show');
-      document.getElementById('r-name').textContent = r.full;
-      document.getElementById('r-sum').textContent = r.summary.replace(r.full + ' — ', '');
+      document.getElementById('r-mode').textContent =
+        r.mode === 'hanja' ? '한자 획수 풀이' : '한글 간이 풀이';
+      document.getElementById('r-name').textContent = r.display || r.full;
+      document.getElementById('r-sum').textContent = (r.summary || '').replace(/^[^—]+—\s*/, '');
       document.getElementById('r-oheng').textContent = r.mainOheng.icon + ' ' + r.mainOheng.ko;
       document.getElementById('r-stroke').textContent = r.totalStroke + '획 · ' + r.strokeOheng.ko;
       document.getElementById('r-tone').textContent = r.tone.ko;
@@ -124,12 +138,73 @@
       document.getElementById('r-disc').textContent = r.disclaimer;
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    document.getElementById('btn').addEventListener('click', show);
-    ['fullname', 'surname', 'given'].forEach(function (id) {
-      document.getElementById(id).addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') show();
+
+    function openHanja() {
+      var inp = getInput();
+      var s = NR.suggestHanja(inp.full, inp);
+      if (!s.ok) {
+        showErr(s.error);
+        return;
+      }
+      showErr('');
+      suggest = s;
+      var html = '';
+      s.slots.forEach(function (slot, i) {
+        html += '<div class="slot"><div class="lab">' + slot.role + ' · ' + slot.hangul + '</div>';
+        if (!slot.candidates.length) {
+          html += '<div class="miss">등록된 한자 후보가 없어요. 아래 「한글만으로 간이 풀이」를 쓰거나, 나중에 한자를 알려 주세요.</div>';
+        } else {
+          html += '<select id="hanja-' + i + '">';
+          slot.candidates.forEach(function (c, j) {
+            html += '<option value="' + j + '">' + c.label + '</option>';
+          });
+          html += '</select>';
+        }
+        html += '</div>';
       });
-    });
+      document.getElementById('slots').innerHTML = html;
+      document.getElementById('hanja-box').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+      document.getElementById('hanja-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function runHanja() {
+      if (!suggest) return;
+      var sels = [];
+      for (var i = 0; i < suggest.slots.length; i++) {
+        var slot = suggest.slots[i];
+        if (!slot.candidates.length) {
+          showErr('「' + slot.hangul + '」한자 후보가 없어 한자 풀이를 완성할 수 없어요. 한글 간이 풀이를 이용해 주세요.');
+          return;
+        }
+        var idx = parseInt(document.getElementById('hanja-' + i).value, 10) || 0;
+        var c = slot.candidates[idx];
+        sels.push({
+          hangul: slot.hangul,
+          hanja: c.hanja,
+          stroke: c.stroke,
+          meaning: c.meaning,
+          ohengId: c.oheng.id
+        });
+      }
+      var r = NR.readFromHanja(sels);
+      if (!r.ok) { showErr(r.error); return; }
+      showErr('');
+      renderResult(r);
+    }
+
+    function runHangul() {
+      var inp = getInput();
+      var r = NR.readNameHangul(inp.full, inp);
+      if (!r.ok) { showErr(r.error); return; }
+      showErr('');
+      document.getElementById('hanja-box').classList.remove('show');
+      renderResult(r);
+    }
+
+    document.getElementById('btn').addEventListener('click', openHanja);
+    document.getElementById('btn-hangul').addEventListener('click', runHangul);
+    document.getElementById('btn-hanja').addEventListener('click', runHanja);
   })();
   </script>
 </body>
