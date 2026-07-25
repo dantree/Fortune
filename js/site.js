@@ -37,10 +37,10 @@
     {
       id: 'card',
       title: '오늘의 카드',
-      desc: '키워드 한 장',
+      desc: '키워드 한 장 · 스토리 공유 이미지',
       href: 'tools/daily-card.html',
       emoji: '🃏',
-      tag: '재미',
+      tag: 'REVEAL',
       nav: null,
       public: true,
       hub: true,
@@ -49,7 +49,7 @@
     {
       id: 'mbti-oheng',
       title: 'MBTI 궁합',
-      desc: '오행 하이브리드',
+      desc: '예: ENFP×INFJ 궁합 점수',
       href: 'mbti-oheng.html',
       emoji: '✨',
       tag: '인기',
@@ -60,7 +60,7 @@
     {
       id: 'ddi',
       title: '띠 궁합',
-      desc: '육합·삼합·점수·해설',
+      desc: '육합·삼합·상충 한눈에',
       href: 'tools/ddi-compat.html',
       emoji: '🐉',
       tag: '12띠',
@@ -71,7 +71,7 @@
     {
       id: 'full-saju',
       title: '풀사주',
-      desc: '이름·성별·시주',
+      desc: '이름·생시 → 인생 4운 풀이',
       href: 'tools/full-saju.html',
       emoji: '📖',
       tag: '원국',
@@ -82,10 +82,10 @@
     {
       id: 'ilju',
       title: '내 일주·시주',
-      desc: '양력·음력·시간',
+      desc: '양력·음력·시간으로 내 기둥',
       href: 'tools/ilju.html',
       emoji: '📅',
-      tag: '만세력',
+      tag: 'NEW',
       nav: '일주',
       public: true,
       group: 'me'
@@ -93,7 +93,7 @@
     {
       id: 'oheng-me',
       title: '내 오행 성격',
-      desc: '일간 상세 풀이',
+      desc: '일간으로 보는 기질·강점',
       href: 'tools/oheng-me.html',
       emoji: '🌿',
       tag: '성격',
@@ -104,7 +104,7 @@
     {
       id: 'star',
       title: '별자리',
-      desc: '성격 · 오늘 운세',
+      desc: '성격 + 오늘의 별자리 한 줄',
       href: 'tools/star-sign.html',
       emoji: '⭐',
       tag: '12궁',
@@ -115,7 +115,7 @@
     {
       id: 'dream',
       title: '꿈해몽',
-      desc: '키워드로 쉽게',
+      desc: '뱀·물·돈… 키워드만 적으면',
       href: 'tools/dream.html',
       emoji: '🌙',
       tag: '인기',
@@ -127,7 +127,7 @@
     {
       id: 'name-reading',
       title: '이름 풀이',
-      desc: '획수 · 오행',
+      desc: '예: 金氣 3획 · 따뜻한 인상',
       href: 'tools/name-reading.html',
       emoji: '✍️',
       tag: 'NEW',

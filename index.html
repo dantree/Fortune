@@ -44,10 +44,11 @@
     "inLanguage": "ko-KR"
   }
   </script>
-  <script src="config.js?v=4.0"></script>
-  <script src="js/solar-terms.js?v=4.0"></script>
-  <script src="js/saju-engine.js?v=4.0"></script>
-  <script src="js/site.js?v=4.2"></script>
+  <script src="config.js?v=4.2"></script>
+  <script src="js/solar-terms.js?v=4.2"></script>
+  <script src="js/saju-engine.js?v=4.2"></script>
+  <script src="js/today-line.js?v=1.0"></script>
+  <script src="js/site.js?v=4.3"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9648839818105934" crossorigin="anonymous"></script>
   <style>
     :root {
@@ -84,13 +85,20 @@
     }
     .hook-tagline {
       font-size: 14px; font-weight: 600; opacity: .92;
-      line-height: 1.45; margin: 0 0 14px;
+      line-height: 1.45; margin: 0 0 12px;
     }
     .hook-day {
       display: inline-block;
-      font-size: 13px; font-weight: 700;
+      font-size: 12px; font-weight: 700;
       background: rgba(255,255,255,.18);
-      padding: 6px 11px; border-radius: 999px; margin-bottom: 14px;
+      padding: 5px 10px; border-radius: 999px; margin-bottom: 12px;
+    }
+    .hook-line {
+      font-size: 16px; font-weight: 750; line-height: 1.55;
+      letter-spacing: -0.02em; margin: 0 0 8px;
+    }
+    .hook-tip {
+      font-size: 12px; opacity: .88; margin: 0 0 14px; line-height: 1.45;
     }
     .hook-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .hook-btn {
@@ -99,6 +107,13 @@
     }
     .hook-btn.primary { background: #fff; color: #4c1d95; }
     .hook-btn.ghost { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+    .trust {
+      display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px;
+    }
+    .trust span {
+      font-size: 11px; font-weight: 700; padding: 5px 9px; border-radius: 999px;
+      background: #ede9fe; color: #5b21b6;
+    }
     .ad-slot { display: none; margin: 16px 0 0; border-radius: 12px; overflow: hidden; }
     .ad-slot.filled { display: block; }
     .notice {
@@ -118,11 +133,19 @@
       <h1 class="hook-brand" id="hook-brand">운세리</h1>
       <p class="hook-tagline">쉬운 말로 읽는 오늘 운 · 풀사주 · 궁합</p>
       <div class="hook-day" id="hook-day">…</div>
+      <p class="hook-line" id="hook-line">오늘의 한 줄을 불러오는 중…</p>
+      <p class="hook-tip" id="hook-tip"></p>
       <div class="hook-row">
-        <a class="hook-btn primary" href="tools/total-today.html">☀️ 총운</a>
+        <a class="hook-btn primary" href="tools/total-today.html">☀️ 총운 더보기</a>
         <a class="hook-btn ghost" href="tools/today.html#lotto">🎱 로또</a>
       </div>
     </section>
+
+    <div class="trust">
+      <span>같은 입력 = 같은 결과</span>
+      <span>KARI · 절입 만세력</span>
+      <span>AI 아님 · 결정론</span>
+    </div>
 
     <nav id="site-hub" class="site-hub" aria-label="도구 목록"></nav>
 
@@ -151,6 +174,10 @@
     var day = SE.getDayPillar(today);
     document.getElementById('hook-day').textContent =
       today.replace(/-/g, '.') + ' · ' + day.pillar + ' · ' + day.oheng.icon + ' ' + day.oheng.labelKo;
+    var one = window.TodayLine.lineForDay(day);
+    document.getElementById('hook-line').textContent = one.line;
+    document.getElementById('hook-tip').textContent =
+      one.tip ? '오늘 팁 · ' + one.tip : '';
 
     var cfg = (window.FORTUNE_CONFIG || {}).adsense;
     if (!cfg || !cfg.enabled || !cfg.slots.top) return;
