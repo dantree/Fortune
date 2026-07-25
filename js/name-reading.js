@@ -412,9 +412,29 @@
   }
   mergeHanja();
 
+  /** 한자 → 획수·의미 (등록된 이름/성씨 한자) */
+  var HANJA_BY_CHAR = (function () {
+    var map = {};
+    Object.keys(HANJA).forEach(function (k) {
+      (HANJA[k] || []).forEach(function (c) {
+        if (!map[c.h]) map[c.h] = { s: c.s, m: c.m, el: c.el };
+      });
+    });
+    return map;
+  })();
+
   function isHangulSyllable(ch) {
     var c = ch.charCodeAt(0);
     return c >= 0xAC00 && c <= 0xD7A3;
+  }
+
+  function isHanjaChar(ch) {
+    var c = ch.charCodeAt(0);
+    return (c >= 0x4e00 && c <= 0x9fff) || (c >= 0x3400 && c <= 0x4dbf);
+  }
+
+  function cleanHanja(raw) {
+    return String(raw || '').replace(/\s+/g, '').split('').filter(isHanjaChar).join('');
   }
 
   function decompose(ch) {
@@ -519,18 +539,15 @@
 
   /**
    * 선택한 한자로 풀이
-   * selections: [{ hangul, hanja, stroke, meaning, ohengId }]
+   * selections: [{ hangul?, hanja, stroke, meaning, ohengId }]
    */
   function readFromHanja(selections) {
     if (!selections || !selections.length) {
-      return { ok: false, error: '한자를 선택해 주세요.' };
+      return { ok: false, error: '한자를 입력해 주세요.' };
     }
     var missing = selections.filter(function (s) { return !s.hanja; });
     if (missing.length) {
-      return {
-        ok: false,
-        error: '「' + missing.map(function (s) { return s.hangul; }).join('') + '」한자 후보가 없거나 선택이 비어 있습니다.'
-      };
+      return { ok: false, error: '한자가 비어 있습니다.' };
     }
 
     var total = 0;
@@ -540,7 +557,8 @@
       total += s.stroke;
       var oh = OHENG[s.ohengId] || strokeToOheng(s.stroke);
       elIds.push(oh.id);
-      parts.push(s.hangul + s.hanja + '(' + s.stroke + '획·' + oh.ko + '·' + s.meaning + ')');
+      var label = (s.hangul || '') + s.hanja;
+      parts.push(label + '(' + s.stroke + '획·' + oh.ko + (s.meaning ? '·' + s.meaning : '') + ')');
     });
 
     var mainOheng = dominantFromList(elIds);
@@ -551,15 +569,18 @@
     var givenStroke = givenSel.reduce(function (a, s) { return a + s.stroke; }, 0);
     var hyung = sur.stroke + (givenSel[0] ? givenSel[0].stroke : 0);
 
-    var fullHangul = selections.map(function (s) { return s.hangul; }).join('');
+    var fullHangul = selections.map(function (s) { return s.hangul || ''; }).join('');
     var fullHanja = selections.map(function (s) { return s.hanja; }).join('');
+    var display = fullHangul && /[가-힣]/.test(fullHangul)
+      ? fullHangul + ' (' + fullHanja + ')'
+      : fullHanja;
 
     return {
       ok: true,
       mode: 'hanja',
-      full: fullHangul,
+      full: fullHangul || fullHanja,
       fullHanja: fullHanja,
-      display: fullHangul + ' (' + fullHanja + ')',
+      display: display,
       totalStroke: total,
       surStroke: sur.stroke,
       givenStroke: givenStroke,
@@ -575,10 +596,61 @@
         tone.tip +
         ' 성 ' + sur.stroke + '획 · 이름 ' + givenStroke + '획 · 형격(성+첫 이름글자) ' + hyung + '획.',
       summary:
-        fullHangul + ' ' + fullHanja + ' — ' + mainOheng.ko + ' · 합 ' + total + '획(' + tone.ko + ')',
+        fullHanja + ' — ' + mainOheng.ko + ' · 합 ' + total + '획(' + tone.ko + ')',
       disclaimer:
         '한자 획수는 옥편식 참고값입니다. 작명소·원획 표기와 1~2획 다를 수 있어요. 참고용입니다.'
     };
+  }
+
+  /**
+   * 한자 문자열을 그대로 읽어 풀이
+   * strokeOverrides: { '字': 8 } — 사전에 없는 글자용
+   */
+  function readHanjaInput(raw, opts) {
+    opts = opts || {};
+    var surname = cleanHanja(opts.surname || '');
+    var given = cleanHanja(opts.given || '');
+    var full = cleanHanja(raw);
+    if (surname || given) full = surname + given;
+    if (!full || full.length < 2) {
+      return { ok: false, error: '한자 이름 2글자 이상을 입력해 주세요. 예: 金敏秀' };
+    }
+    if (full.length > 6) {
+      return { ok: false, error: '이름은 6글자 이하로 입력해 주세요.' };
+    }
+
+    var overrides = opts.strokeOverrides || {};
+    var selections = [];
+    var needStroke = [];
+
+    for (var i = 0; i < full.length; i++) {
+      var ch = full.charAt(i);
+      var known = HANJA_BY_CHAR[ch];
+      var ov = overrides[ch] != null ? Number(overrides[ch]) : NaN;
+      var stroke = !isNaN(ov) && ov > 0 ? ov : (known ? known.s : 0);
+      if (!stroke) {
+        needStroke.push(ch);
+        continue;
+      }
+      selections.push({
+        hangul: '',
+        hanja: ch,
+        stroke: stroke,
+        meaning: known ? known.m : '직접 입력',
+        ohengId: known ? known.el : strokeToOheng(stroke).id
+      });
+    }
+
+    if (needStroke.length) {
+      return {
+        ok: false,
+        needStroke: needStroke,
+        fullHanja: full,
+        error: '「' + needStroke.join('') + '」획수가 사전에 없어요. 아래 칸에 획수를 적어 주세요.'
+      };
+    }
+
+    return readFromHanja(selections);
   }
 
   /* —— 기존 한글 간이 풀이 (한자 없을 때) —— */
@@ -637,12 +709,12 @@
       tone: tone,
       nature: mainOheng.icon + ' 이름 기운은 「' + mainOheng.ko + '」 쪽에 가깝습니다. ' + mainOheng.tip,
       strokeLine: '한글 자모 획수 합 ' + totalStroke + '획 · 「' + strokeOheng.ko + '」. ' + tone.tip +
-        ' (한자와 다릅니다. 가능하면 한자 선택을 권합니다.)',
+        ' (한자 획수와 다릅니다. 한자를 알면 한자로 입력해 주세요.)',
       partsLine: all.map(function (s) {
         return s.char + '(' + s.stroke + '획·' + (s.soundOheng ? s.soundOheng.ko : '?') + ')';
       }).join(' · '),
       summary: full + ' — ' + mainOheng.ko + ' · 합 ' + totalStroke + '획(' + tone.ko + ') · 한글 간이',
-      disclaimer: '한글 자모 획수는 성명학 한자 획수와 다릅니다. 한자를 알면 한자 모드로 봐 주세요.'
+      disclaimer: '한글 자모 획수는 성명학 한자 획수와 다릅니다. 한자를 알면 한자로 입력해 주세요.'
     };
   }
 
@@ -654,11 +726,14 @@
   global.NameReading = {
     readName: readName,
     readNameHangul: readNameHangul,
+    readHanjaInput: readHanjaInput,
     suggestHanja: suggestHanja,
     readFromHanja: readFromHanja,
     candidatesFor: candidatesFor,
     syllableStroke: syllableStroke,
+    cleanHanja: cleanHanja,
     OHENG: OHENG,
-    HANJA: HANJA
+    HANJA: HANJA,
+    HANJA_BY_CHAR: HANJA_BY_CHAR
   };
 })(typeof window !== 'undefined' ? window : this);

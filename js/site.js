@@ -127,7 +127,7 @@
     {
       id: 'name-reading',
       title: '이름 풀이',
-      desc: '예: 金氣 3획 · 따뜻한 인상',
+      desc: '한자 이름 그대로 입력 · 획수',
       href: 'tools/name-reading.html',
       emoji: '✍️',
       tag: 'NEW',
