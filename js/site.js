@@ -147,11 +147,12 @@
     }
   ];
 
+  /* 홈 허브 노출 순서 (인기순) */
   var GROUPS = [
-    { id: 'today', label: '오늘' },
-    { id: 'compat', label: '궁합' },
+    { id: 'life', label: '일상 풀이' },
     { id: 'me', label: '나에 대해' },
-    { id: 'life', label: '일상 풀이' }
+    { id: 'compat', label: '궁합' },
+    { id: 'today', label: '오늘' }
   ];
 
   function basePrefix() {
