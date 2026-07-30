@@ -412,13 +412,17 @@
   }
   mergeHanja();
 
-  /** 한자 → 획수·의미 (등록된 이름/성씨 한자) */
+  /** 한자 → 획수·의미 (이름 사전 + 확장 획수표) */
   var HANJA_BY_CHAR = (function () {
     var map = {};
     Object.keys(HANJA).forEach(function (k) {
       (HANJA[k] || []).forEach(function (c) {
         if (!map[c.h]) map[c.h] = { s: c.s, m: c.m, el: c.el };
       });
+    });
+    var extra = (global.HanjaStrokes && global.HanjaStrokes.map) || {};
+    Object.keys(extra).forEach(function (ch) {
+      if (!map[ch]) map[ch] = extra[ch];
     });
     return map;
   })();
