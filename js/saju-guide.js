@@ -1289,8 +1289,168 @@
     return shipSinByStem(map[dayType], map[otherType]);
   }
 
+  /**
+   * 올해/신년 운세 — 세운(연주) 기준 결정론
+   * opts: { solarDate, year?, name?, gender?, time? }
+   */
+  function getYearFortune(opts) {
+    var SE = global.SajuEngine;
+    if (!SE || !opts || !opts.solarDate) return null;
+
+    var today = SE.todayDateStr();
+    var calYear = parseDate(today).y;
+    var year = opts.year != null ? Number(opts.year) : calYear;
+    if (!year || year < 1900 || year > 2100) year = calYear;
+
+    var call = (opts.name || '').trim() ? opts.name.trim() + '님' : '당신';
+    var saju = SE.getFullSaju(opts.solarDate, opts.time || null, opts.gender || null);
+    if (!saju || !saju.day) return null;
+
+    var dayStemIdx = dayStemIndex(saju);
+    var dayType = saju.day.oheng.type;
+    var age = getManAge(opts.solarDate, year + '-06-15');
+    var yp = yearPillarOf(year);
+    if (!yp) return null;
+
+    var ss = shipSinByStem(dayStemIdx, yp.stemIndex);
+    var scores = scoreDomains(ss, yp.branch);
+    var br = BRANCH_THEME[yp.branch] || { short: '변화', tip: '기본을 지키며 한 걸음씩 가세요.' };
+    var brName = BRANCH_NAME[yp.branch] || yp.branch;
+    var tone = PERIOD_TONE[ss.tone] || PERIOD_TONE.neutral;
+    var fav = FAVOR[dayType];
+    var dir = DIR[dayType];
+    var animal = (SE.ANIMALS && SE.ANIMALS[yp.branchIndex]) || '';
+
+    var isSinnyeon = (calYear === year && parseDate(today).m <= 2) ||
+      (year === calYear + 1 && parseDate(today).m >= 11);
+    var titleYear = isSinnyeon ? year + ' 신년운세' : year + '년 올해 운세';
+
+    var pct = Math.round((scores.total / 20) * 100);
+    var grade =
+      scores.total >= 16 ? { ko: '길운', tone: 'up' }
+        : scores.total <= 10 ? { ko: '조심·정비', tone: 'down' }
+          : { ko: '평운·가꾸기', tone: 'mid' };
+
+    var headline =
+      call + '의 ' + year + '년은 ' + yp.hanja + '(' + animal + '해) · ' + ss.ko + ' 흐름입니다. ' +
+      plainShip(ss) + '.';
+
+    var summary =
+      '지지 ' + brName + ' 테마는 「' + br.short + '」. ' + br.tip + ' ' +
+      (CHAPTER_ONE[ss.id] || tone.tip || '');
+
+    function domainLine(key, title) {
+      var n = Math.max(1, Math.min(5, scores[key]));
+      var g = gradeLabel(n);
+      var copy = {
+        career: {
+          5: '평가·직책이 붙기 쉬운 해. 성과를 숫자로 남기세요.',
+          4: '맡은 일에서 인정받기 괜찮은 해입니다.',
+          3: '새 자리보다 지금 자리를 탄탄히 하는 쪽.',
+          2: '승진·이직은 신중히, 기본 업무에 집중하세요.',
+          1: '무리한 어필보다 실수 방지·마감이 먼저입니다.'
+        },
+        venture: {
+          5: '창업·부업·확장이 붙기 쉬운 해. 검증된 한 가지만.',
+          4: '사이드·제안을 꺼내보기 좋은 해입니다.',
+          3: '확장보다 현금·고객 관리가 이득입니다.',
+          2: '새 판은 작게, 큰 베팅은 참으세요.',
+          1: '투기·보증은 피하고 본업 안정이 우선입니다.'
+        },
+        health: {
+          5: '회복·운동이 잘 붙습니다. 검진을 미루지 마세요.',
+          4: '몸을 돌보면 금방 반응이 옵니다.',
+          3: '수면·식사만 지켜도 컨디션이 버팁니다.',
+          2: '과로·스트레스를 먼저 줄이세요.',
+          1: '무리한 일정·큰 시술은 미루세요.'
+        },
+        love: {
+          5: '사람 복이 붙습니다. 연락·소개를 해보세요.',
+          4: '관계 회복·협업이 잘 됩니다.',
+          3: '가까운 사람만 잘 챙겨도 충분합니다.',
+          2: '말다툼을 피하고 한 박자 쉬세요.',
+          1: '독주·비교는 인연을 상하게 합니다.'
+        }
+      };
+      return {
+        key: key,
+        title: title,
+        score: n,
+        pct: g.pct,
+        grade: g.ko,
+        tone: g.tone,
+        text: (copy[key] && copy[key][n]) || ''
+      };
+    }
+
+    var domains = [
+      domainLine('career', '직장·명예'),
+      domainLine('venture', '재물·사업'),
+      domainLine('love', '애정·관계'),
+      domainLine('health', '건강·컨디션')
+    ];
+
+    var quarters = [];
+    var qLabels = ['1~3월 · 봄', '4~6월 · 여름', '7~9월 · 가을', '10~12월 · 겨울'];
+    for (var qi = 0; qi < 4; qi++) {
+      var shift = (ss.tone === 'good' ? 1 : ss.tone === 'care' ? -1 : 0);
+      var qScore = Math.max(1, Math.min(5, Math.round(scores.total / 4) + ((qi + dayStemIdx) % 3) - 1 + shift));
+      var qTip =
+        qi === 0 ? '계획·관계 정리로 한 해 뼈대를 잡으세요.'
+          : qi === 1 ? '밖으로 나가 성과를 보이는 구간입니다.'
+            : qi === 2 ? '마감·수확·정리가 운을 가릅니다.'
+              : '회복·저축·내년 준비에 힘을 주세요.';
+      quarters.push({
+        label: qLabels[qi],
+        score: qScore,
+        grade: gradeLabel(qScore).ko,
+        text: qTip
+      });
+    }
+
+    var tips = [
+      { title: '올해 키워드', text: ss.ko + ' · ' + br.short },
+      { title: '잘 맞는 일', text: fav.career },
+      { title: '색·소품', text: fav.colors.join('·') + ' · ' + fav.items.join('·') },
+      { title: '길한 방향', text: dir.good.join('·') + '. ' + dir.move },
+      { title: '조심할 때', text: tone.tip || '말·계약·과로는 한 박자 늦추세요.' }
+    ];
+    if (REMEDY[ss.id]) {
+      tips.unshift({ title: REMEDY[ss.id].title, text: REMEDY[ss.id].text });
+    }
+
+    var nextYears = buildYearOutlook(dayStemIdx, year + 1, 3);
+
+    return {
+      ok: true,
+      year: year,
+      title: titleYear,
+      isSinnyeon: isSinnyeon,
+      call: call,
+      age: age,
+      pillar: yp.hanja,
+      animal: animal,
+      shipSin: ss,
+      branchTheme: br,
+      branchName: brName,
+      scores: scores,
+      pct: pct,
+      grade: grade,
+      headline: headline,
+      summary: summary,
+      domains: domains,
+      quarters: quarters,
+      tips: tips,
+      nextYears: nextYears,
+      dayMaster: saju.day.stem + ' · ' + saju.day.oheng.labelKo,
+      disclaimer:
+        '세운(연주) 기준 참고 풀이입니다. 같은 생년월일·같은 해면 결과가 같습니다. 오락·참고용입니다.'
+    };
+  }
+
   global.SajuGuide = {
     getLifeGuide: getLifeGuide,
+    getYearFortune: getYearFortune,
     getManAge: getManAge,
     shipSin: shipSin,
     shipSinByStem: shipSinByStem,

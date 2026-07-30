@@ -47,6 +47,18 @@
       group: 'today'
     },
     {
+      id: 'year-fortune',
+      title: '올해 운세',
+      desc: '신년·세운 · 직장·애정·재물',
+      href: 'tools/year-fortune.html',
+      emoji: '🌅',
+      tag: '신년',
+      nav: null,
+      public: true,
+      hub: true,
+      group: 'year'
+    },
+    {
       id: 'mbti-oheng',
       title: 'MBTI 궁합',
       desc: '예: ENFP×INFJ 궁합 점수',
@@ -149,6 +161,7 @@
 
   /* 홈 허브 노출 순서 (인기순) */
   var GROUPS = [
+    { id: 'year', label: '올해 · 신년' },
     { id: 'life', label: '일상 풀이' },
     { id: 'me', label: '나에 대해' },
     { id: 'compat', label: '궁합' },

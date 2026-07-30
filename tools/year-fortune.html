@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="운세리 올해·신년운세 — 세운(연주) 기준 직장·재물·애정·건강. 같은 생년월일=같은 결과.">
+  <title>올해 운세 · 신년운세 | 운세리</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32.png?v=1">
+  <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16.png?v=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon-180.png?v=1">
+  <meta name="theme-color" content="#6b4eff">
+  <meta property="og:title" content="올해 운세 · 신년운세 | 운세리">
+  <meta property="og:description" content="세운 기준 올해 운세. 직장·재물·애정·건강을 한눈에.">
+  <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
+  <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
+  <script src="../js/birth-date.js?v=3.1"></script>
+  <script src="../js/solar-terms.js?v=3.1"></script>
+  <script src="../js/saju-engine.js?v=3.1"></script>
+  <script src="../js/saju-guide.js?v=3.1"></script>
+  <script src="../js/site.js?v=4.4"></script>
+  <style>
+    :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; --up:#0d9488; --down:#c2410c; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;
+      background: radial-gradient(ellipse at top,#ebe4ff 0%,transparent 55%), var(--bg);
+      color:var(--text); min-height:100dvh;
+    }
+    .app { max-width:480px; margin:0 auto; padding:16px 16px 32px; }
+    h1 { font-size:22px; font-weight:850; margin-bottom:6px; letter-spacing:-0.02em; }
+    .hero { font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.55; }
+    .card { background:#fff; border-radius:16px; padding:18px; box-shadow:0 6px 22px rgba(107,78,255,.08); margin-bottom:12px; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    input, select {
+      width:100%; padding:12px; border:1.5px solid #e5e7eb; border-radius:12px;
+      font-size:16px; background:#fafafa; margin-bottom:12px;
+    }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .btn {
+      width:100%; padding:14px; border:none; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;
+      background:linear-gradient(135deg,#5b4fe8,#7c3aed); color:#fff;
+    }
+    .result { display:none; } .result.show { display:block; }
+    .hero-y {
+      text-align:center; color:#fff; border-radius:18px; padding:22px 16px; margin-bottom:12px;
+      background:linear-gradient(150deg,#4c1d95,#6b4eff 48%,#db2777);
+      box-shadow:0 10px 28px rgba(76,29,149,.28);
+    }
+    .hero-y .yr { font-size:13px; font-weight:800; opacity:.9; margin-bottom:6px; }
+    .hero-y .pct { font-size:52px; font-weight:900; line-height:1.05; }
+    .hero-y .grade { font-size:15px; font-weight:800; margin-top:4px; }
+    .hero-y .head { font-size:14px; margin-top:12px; line-height:1.55; opacity:.96; text-align:left; }
+    .sec { font-size:15px; font-weight:800; margin-bottom:10px; }
+    .block { font-size:14px; line-height:1.75; color:#374151; }
+    .meter { display:grid; grid-template-columns:72px 1fr 44px; gap:8px; align-items:center; margin-bottom:12px; }
+    .meter .lab { font-size:13px; font-weight:800; }
+    .meter .track { height:10px; background:#f1f5f9; border-radius:999px; overflow:hidden; }
+    .meter .fill { height:100%; border-radius:999px; }
+    .meter .fill.up { background:linear-gradient(90deg,#14b8a6,#0d9488); }
+    .meter .fill.mid { background:linear-gradient(90deg,#8b7cf7,#6b4eff); }
+    .meter .fill.down { background:linear-gradient(90deg,#fb923c,#c2410c); }
+    .meter .pct { font-size:13px; font-weight:800; text-align:right; color:var(--primary); }
+    .q { padding:12px 0; border-bottom:1px solid #f1f5f9; }
+    .q:last-child { border:none; }
+    .q .t { font-size:13px; font-weight:800; color:var(--primary); margin-bottom:4px; }
+    .tip { padding:10px 0; border-bottom:1px solid #f1f5f9; }
+    .tip:last-child { border:none; }
+    .tip .t { font-size:12px; font-weight:800; color:var(--primary); margin-bottom:3px; }
+    .note { font-size:12px; color:var(--muted); line-height:1.55; margin-top:8px; }
+    .links a {
+      display:block; text-align:center; text-decoration:none; padding:12px; border-radius:12px;
+      font-weight:800; font-size:14px; margin-top:8px; background:#ede9fe; color:#4c1d95;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="site-top"></div>
+    <h1 id="page-title">🌅 올해 운세</h1>
+    <p class="hero">세운(그해 연주)으로 읽는 한 해 흐름.<br>직장·재물·애정·건강을 한눈에 — 같은 생년월일이면 같은 결과.</p>
+
+    <div class="card">
+      <label for="name">이름 (선택)</label>
+      <input type="text" id="name" placeholder="예: 지은" maxlength="20">
+      <label>달력</label>
+      <div id="cal"></div>
+      <label for="birth">생년월일</label>
+      <input type="date" id="birth" min="1900-01-01" max="2050-12-31">
+      <div class="row2">
+        <div>
+          <label for="year">볼 해</label>
+          <select id="year"></select>
+        </div>
+        <div>
+          <label for="gender">성별 (선택)</label>
+          <select id="gender">
+            <option value="">선택 안 함</option>
+            <option value="M">남성</option>
+            <option value="F">여성</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" class="btn" id="btn">올해 운세 보기</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="hero-y">
+        <div class="yr" id="r-title">—</div>
+        <div class="pct" id="r-pct">—</div>
+        <div class="grade" id="r-grade"></div>
+        <p class="head" id="r-head"></p>
+      </div>
+      <div class="card">
+        <div class="sec">한 줄 더</div>
+        <p class="block" id="r-sum"></p>
+        <p class="note" id="r-meta"></p>
+      </div>
+      <div class="card">
+        <div class="sec">영역별 운</div>
+        <div id="r-domains"></div>
+      </div>
+      <div class="card">
+        <div class="sec">분기 흐름</div>
+        <div id="r-quarters"></div>
+      </div>
+      <div class="card">
+        <div class="sec">올해 팁</div>
+        <div id="r-tips"></div>
+      </div>
+      <div class="card">
+        <div class="sec">다음 해 미리보기</div>
+        <div id="r-next"></div>
+      </div>
+      <div class="card links">
+        <div class="sec">이어서 보기</div>
+        <a href="full-saju.html">📖 풀사주 (대운까지)</a>
+        <a href="total-today.html">☀️ 오늘의 총운</a>
+        <a href="daily-card.html">🃏 오늘의 카드</a>
+      </div>
+      <p class="note" id="r-disc"></p>
+    </div>
+  </div>
+  <script>
+  (function () {
+    window.SiteNav.mount('year-fortune');
+    var SE = window.SajuEngine;
+    var BD = window.BirthDate;
+    var SG = window.SajuGuide;
+    var birth = document.getElementById('birth');
+    birth.max = SE.todayDateStr();
+    var field = BD.enhance({ name: 'year-cal', dateInput: birth, mountEl: document.getElementById('cal') });
+    var saved = BD.loadBirth();
+    if (saved) BD.applySaved(field, birth, saved);
+
+    var nowY = parseInt(SE.todayDateStr().slice(0, 4), 10);
+    var ySel = document.getElementById('year');
+    for (var y = nowY - 1; y <= nowY + 2; y++) {
+      var opt = document.createElement('option');
+      opt.value = String(y);
+      opt.textContent = y + '년' + (y === nowY ? ' (올해)' : y === nowY + 1 ? ' (내년)' : '');
+      if (y === nowY) opt.selected = true;
+      ySel.appendChild(opt);
+    }
+
+    var month = parseInt(SE.todayDateStr().slice(5, 7), 10);
+    if (month <= 2) {
+      document.getElementById('page-title').textContent = '🌅 신년운세';
+      document.getElementById('btn').textContent = '신년운세 보기';
+    }
+
+    try {
+      var prof = JSON.parse(localStorage.getItem('fortune_profile') || '{}');
+      if (prof.name) document.getElementById('name').value = prof.name;
+      if (prof.gender) document.getElementById('gender').value = prof.gender;
+    } catch (e) {}
+
+    function show() {
+      var v = field.getValue();
+      if (!v.ok) {
+        alert(v.error || '생년월일을 확인해 주세요');
+        return;
+      }
+      BD.saveBirth(v);
+      var name = document.getElementById('name').value.trim();
+      var gender = document.getElementById('gender').value || null;
+      var year = parseInt(ySel.value, 10);
+      try {
+        localStorage.setItem('fortune_profile', JSON.stringify({
+          name: name,
+          gender: gender || '',
+          time: (JSON.parse(localStorage.getItem('fortune_profile') || '{}').time || '')
+        }));
+      } catch (e) {}
+
+      var r = SG.getYearFortune({
+        solarDate: v.solar,
+        year: year,
+        name: name,
+        gender: gender
+      });
+      if (!r || !r.ok) {
+        alert('운세 계산에 실패했습니다.');
+        return;
+      }
+
+      document.getElementById('r-title').textContent = r.title + ' · ' + r.pillar + (r.animal ? ' · ' + r.animal + '해' : '');
+      document.getElementById('r-pct').textContent = r.pct;
+      document.getElementById('r-grade').textContent = r.grade.ko;
+      document.getElementById('r-head').textContent = r.headline;
+      document.getElementById('r-sum').textContent = r.summary;
+      document.getElementById('r-meta').textContent =
+        '일간 ' + r.dayMaster + ' · 만나이(그해 기준) ' + r.age + '세 · ' + r.shipSin.ko;
+
+      var dh = '';
+      r.domains.forEach(function (d) {
+        dh += '<div class="meter"><div class="lab">' + d.title + '</div>' +
+          '<div class="track"><div class="fill ' + d.tone + '" style="width:' + d.pct + '%"></div></div>' +
+          '<div class="pct">' + d.pct + '</div></div>' +
+          '<p class="block" style="margin:-4px 0 12px">' + d.text + '</p>';
+      });
+      document.getElementById('r-domains').innerHTML = dh;
+
+      var qh = '';
+      r.quarters.forEach(function (q) {
+        qh += '<div class="q"><div class="t">' + q.label + ' · ' + q.grade + '</div>' +
+          '<p class="block">' + q.text + '</p></div>';
+      });
+      document.getElementById('r-quarters').innerHTML = qh;
+
+      var th = '';
+      r.tips.forEach(function (t) {
+        th += '<div class="tip"><div class="t">' + t.title + '</div><p class="block">' + t.text + '</p></div>';
+      });
+      document.getElementById('r-tips').innerHTML = th;
+
+      var nh = '';
+      (r.nextYears || []).forEach(function (n) {
+        nh += '<div class="q"><div class="t">' + n.year + ' · ' + n.label + '</div>' +
+          '<p class="block">' + n.text + '</p></div>';
+      });
+      document.getElementById('r-next').innerHTML = nh || '<p class="block">—</p>';
+      document.getElementById('r-disc').textContent = r.disclaimer;
+
+      document.getElementById('result').classList.add('show');
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('btn').addEventListener('click', show);
+  })();
+  </script>
+</body>
+</html>
