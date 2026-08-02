@@ -1321,23 +1321,40 @@
     var dir = DIR[dayType];
     var animal = (SE.ANIMALS && SE.ANIMALS[yp.branchIndex]) || '';
 
+    var SA = global.SajuAnalysis;
+    var analysis = SA && SA.analyze ? SA.analyze(saju) : null;
+    var luck = analysis && SA.luckTone
+      ? SA.luckTone(analysis, yp.stem, yp.branch)
+      : null;
+
     var isSinnyeon = (calYear === year && parseDate(today).m <= 2) ||
       (year === calYear + 1 && parseDate(today).m >= 11);
     var titleYear = isSinnyeon ? year + ' 신년운세' : year + '년 올해 운세';
 
     var pct = Math.round((scores.total / 20) * 100);
+    if (luck && luck.tone === 'up') pct = Math.min(96, pct + 8);
+    if (luck && luck.tone === 'down') pct = Math.max(18, pct - 8);
+
     var grade =
-      scores.total >= 16 ? { ko: '길운', tone: 'up' }
-        : scores.total <= 10 ? { ko: '조심·정비', tone: 'down' }
+      scores.total >= 16 || (luck && luck.tone === 'up' && scores.total >= 12)
+        ? { ko: '길운', tone: 'up' }
+        : scores.total <= 10 || (luck && luck.tone === 'down' && scores.total <= 14)
+          ? { ko: '조심·정비', tone: 'down' }
           : { ko: '평운·가꾸기', tone: 'mid' };
 
     var headline =
       call + '의 ' + year + '년은 ' + yp.hanja + '(' + animal + '해) · ' + ss.ko + ' 흐름입니다. ' +
       plainShip(ss) + '.';
+    if (luck && luck.plain) headline += ' ' + luck.plain;
 
     var summary =
       '지지 ' + brName + ' 테마는 「' + br.short + '」. ' + br.tip + ' ' +
       (CHAPTER_ONE[ss.id] || tone.tip || '');
+    if (analysis && analysis.yongsin) {
+      summary +=
+        ' 원국 용신은 「' + (global.SajuAnalysis.EL_KO[analysis.yongsin.yong] || '') +
+        '」 — ' + (luck ? luck.label : '세운과 함께') + '로 읽어요.';
+    }
 
     function domainLine(key, title) {
       var n = Math.max(1, Math.min(5, scores[key]));
@@ -1418,6 +1435,15 @@
     if (REMEDY[ss.id]) {
       tips.unshift({ title: REMEDY[ss.id].title, text: REMEDY[ss.id].text });
     }
+    if (analysis && analysis.yongsin) {
+      tips.unshift({
+        title: '원국 용신으로 보면',
+        text: analysis.yongsin.plain + ' ' + (luck ? luck.plain : '')
+      });
+    }
+    if (analysis && analysis.careerHint) {
+      tips.push({ title: '직업 힌트', text: analysis.careerHint });
+    }
 
     var nextYears = buildYearOutlook(dayStemIdx, year + 1, 3);
 
@@ -1442,9 +1468,11 @@
       quarters: quarters,
       tips: tips,
       nextYears: nextYears,
+      analysis: analysis,
+      luck: luck,
       dayMaster: saju.day.stem + ' · ' + saju.day.oheng.labelKo,
       disclaimer:
-        '세운(연주) 기준 참고 풀이입니다. 같은 생년월일·같은 해면 결과가 같습니다. 오락·참고용입니다.'
+        '세운(연주)·용신 참고 풀이입니다. 같은 생년월일·같은 해면 결과가 같습니다. 경향·참고용입니다.'
     };
   }
 

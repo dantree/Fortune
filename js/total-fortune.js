@@ -160,12 +160,17 @@
       })
       : null;
 
+    var SA = global.SajuAnalysis;
+    var analysis = SA && typeof SA.analyze === 'function' ? SA.analyze(saju) : null;
+
     var call = name ? name + '님' : '당신';
-    var opening = (guide && guide.story && guide.story.prologue)
-      ? guide.story.prologue
-      : (guide && guide.faq && guide.faq.blurb)
-        ? guide.faq.blurb
-        : (call + '의 사주 이야기를 시작합니다.');
+    var opening = (analysis && analysis.nature)
+      ? (call + ' — ' + analysis.nature)
+      : (guide && guide.story && guide.story.prologue)
+        ? guide.story.prologue
+        : (guide && guide.faq && guide.faq.blurb)
+          ? guide.faq.blurb
+          : (call + '의 사주 이야기를 시작합니다.');
 
     return {
       name: name || null,
@@ -175,11 +180,12 @@
       saju: saju,
       daeun: daeun,
       guide: guide,
+      analysis: analysis,
       oheng: oheng,
       animal: animal,
       star: star,
       opening: opening,
-      disclaimer: '다른 만세력 앱과 해가 조금 다를 수 있어요. 절기(절입) 시각을 어떻게 잡느냐에 따라 달라집니다.'
+      disclaimer: '다른 만세력 앱과 해가 조금 다를 수 있어요. 절기(절입) 시각을 어떻게 잡느냐에 따라 달라집니다. 용신·격국은 자평 통설 참고값입니다.'
     };
   }
 

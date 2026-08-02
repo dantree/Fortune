@@ -11,15 +11,16 @@
   <meta name="theme-color" content="#6b4eff">
   <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
   <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
-  <script src="../js/birth-date.js?v=3.0"></script>
-  <script src="../js/solar-terms.js?v=3.0"></script>
-  <script src="../js/saju-engine.js?v=3.0"></script>
-  <script src="../js/saju-guide.js?v=3.0"></script>
-  <script src="../js/oheng-story.js?v=3.0"></script>
-  <script src="../js/zodiac-compat.js?v=3.0"></script>
-  <script src="../js/star-sign.js?v=3.0"></script>
-  <script src="../js/total-fortune.js?v=3.0"></script>
-  <script src="../js/site.js?v=3.0"></script>
+  <script src="../js/birth-date.js?v=3.2"></script>
+  <script src="../js/solar-terms.js?v=3.2"></script>
+  <script src="../js/saju-engine.js?v=3.2"></script>
+  <script src="../js/saju-analysis.js?v=1.0"></script>
+  <script src="../js/saju-guide.js?v=3.2"></script>
+  <script src="../js/oheng-story.js?v=3.2"></script>
+  <script src="../js/zodiac-compat.js?v=3.2"></script>
+  <script src="../js/star-sign.js?v=3.2"></script>
+  <script src="../js/total-fortune.js?v=3.2"></script>
+  <script src="../js/site.js?v=4.4"></script>
   <style>
     :root {
       --bg: #f3f1fb;
@@ -127,9 +128,15 @@
       padding: 12px 0 4px; color: var(--primary);
     }
     details.more > summary::-webkit-details-marker { display: none; }
-    .link-btn {
-      display: block; text-align: center; text-decoration: none; margin-top: 8px;
-    }
+    .oh-bars { display:flex; flex-direction:column; gap:8px; margin:10px 0 12px; }
+    .oh-row { display:grid; grid-template-columns:36px 1fr 52px; gap:8px; align-items:center; font-size:13px; }
+    .oh-row .track { height:8px; background:#f1f5f9; border-radius:999px; overflow:hidden; }
+    .oh-row .fill { height:100%; background:linear-gradient(90deg,#8b7cf7,#5b4fe8); border-radius:999px; }
+    .oh-row .role { font-size:11px; font-weight:800; color:var(--primary); }
+    .tag-row { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 12px; }
+    .tag-row span { font-size:12px; font-weight:750; padding:5px 10px; border-radius:999px; background:#eef2ff; color:#4338ca; }
+    .tag-row span.down { background:#fff7ed; color:#c2410c; }
+    .tag-row span.up { background:#f0fdfa; color:#0d9488; }
   </style>
 </head>
 <body>
@@ -168,6 +175,17 @@
         </div>
         <div class="meters" id="meters"></div>
         <div class="hl" id="highlights"></div>
+      </div>
+
+      <!-- 1b. 원국 구조 (신강·용신·격국) -->
+      <div class="card" id="ch-struct" style="display:none">
+        <div class="sec">타고난 구조</div>
+        <div class="tag-row" id="struct-tags"></div>
+        <p class="story" id="struct-nature"></p>
+        <div class="oh-bars" id="struct-oheng"></div>
+        <div class="block"><span class="l">용신 · 균형 기운</span><span id="struct-yong"></span></div>
+        <div class="block"><span class="l">직업·재물 힌트</span><span id="struct-hint"></span></div>
+        <p class="meta" id="struct-disc"></p>
       </div>
 
       <!-- 2. 짧은 이야기 -->
@@ -312,6 +330,36 @@
           }).join('');
         } else {
           document.getElementById('ch-snap').style.display = 'none';
+        }
+
+        /* 원국 구조 */
+        var A = r.analysis;
+        if (A) {
+          document.getElementById('ch-struct').style.display = 'block';
+          var tags = '';
+          tags += '<span class="' + (A.strength.level === 'strong' ? 'up' : A.strength.level === 'weak' ? 'down' : '') + '">' +
+            A.strength.labelKo + '</span>';
+          tags += '<span>' + A.geokguk.short + '</span>';
+          tags += '<span class="up">용신 ' + (window.SajuAnalysis.EL_KO[A.yongsin.yong] || '') + '</span>';
+          if (A.yongsin.gi) tags += '<span class="down">기신 ' + window.SajuAnalysis.EL_KO[A.yongsin.gi] + '</span>';
+          if (A.strength.deukryeong) tags += '<span>득령</span>';
+          if (A.strength.deukji) tags += '<span>득지</span>';
+          document.getElementById('struct-tags').innerHTML = tags;
+          document.getElementById('struct-nature').textContent = A.nature;
+          var maxOh = 0;
+          A.ohengBars.forEach(function (b) { if (b.value > maxOh) maxOh = b.value; });
+          document.getElementById('struct-oheng').innerHTML = A.ohengBars.map(function (b) {
+            var pct = maxOh > 0 ? Math.round((b.value / maxOh) * 100) : 0;
+            return '<div class="oh-row"><span>' + b.icon + b.ko + '</span>' +
+              '<div class="track"><div class="fill" style="width:' + pct + '%"></div></div>' +
+              '<span class="role">' + (b.role || '') + '</span></div>';
+          }).join('');
+          document.getElementById('struct-yong').textContent = A.yongsin.plain + ' ' + A.yongsin.tip;
+          document.getElementById('struct-hint').textContent =
+            A.careerHint + ' ' + A.moneyHint;
+          document.getElementById('struct-disc').textContent = A.disclaimer;
+        } else {
+          document.getElementById('ch-struct').style.display = 'none';
         }
 
         /* 왜 */

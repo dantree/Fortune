@@ -13,10 +13,11 @@
   <script src="../config.js"></script>
   <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
   <script src="../js/birth-date.js"></script>
-  <script src="../js/solar-terms.js?v=1.4"></script>
-  <script src="../js/saju-engine.js?v=1.4"></script>
+  <script src="../js/solar-terms.js?v=1.5"></script>
+  <script src="../js/saju-engine.js?v=1.5"></script>
+  <script src="../js/saju-analysis.js?v=1.0"></script>
   <script src="../js/ilju-story.js"></script>
-  <script src="../js/site.js"></script>
+  <script src="../js/site.js?v=4.4"></script>
   <style>
     :root {
       --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
@@ -118,6 +119,11 @@
       <div class="card">
         <div class="sec-title">✨ 이 일주는 이런 사람</div>
         <p class="story" id="day-story"></p>
+      </div>
+      <div class="card" id="struct-card" style="display:none">
+        <div class="sec-title">📐 원국으로 보면</div>
+        <p class="story" id="struct-blurb"></p>
+        <p class="hint" style="margin-top:8px"><a href="full-saju.html" style="color:var(--primary);font-weight:700;text-decoration:none">풀사주에서 용신·격국 자세히 →</a></p>
       </div>
 
       <div class="card">
@@ -223,6 +229,16 @@
       }
 
       document.getElementById('day-story').textContent = story.story;
+
+      var A = window.SajuAnalysis && window.SajuAnalysis.analyze(s);
+      if (A) {
+        document.getElementById('struct-card').style.display = 'block';
+        document.getElementById('struct-blurb').textContent =
+          A.strength.labelKo + ' · ' + A.geokguk.short + ' · 용신 「' +
+          window.SajuAnalysis.EL_KO[A.yongsin.yong] + '」. ' + A.yongsin.plain;
+      } else {
+        document.getElementById('struct-card').style.display = 'none';
+      }
 
       document.getElementById('curiosities').innerHTML = story.curiosities.map(function (c) {
         return '<div class="qa"><div class="q">' + c.q + '</div><div class="a">' + c.a + '</div></div>';

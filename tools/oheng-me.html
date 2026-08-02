@@ -12,11 +12,12 @@
   <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
   <script src="../js/vendor/korean-lunar-calendar.min.js?v=1.4"></script>
   <script src="../js/birth-date.js?v=1.4"></script>
-  <script src="../js/solar-terms.js?v=1.4"></script>
-  <script src="../js/saju-engine.js?v=1.4"></script>
-  <script src="../js/oheng-story.js?v=1.3"></script>
-  <script src="../js/zodiac-compat.js?v=1.3"></script>
-  <script src="../js/site.js?v=1.3"></script>
+  <script src="../js/solar-terms.js?v=1.5"></script>
+  <script src="../js/saju-engine.js?v=1.5"></script>
+  <script src="../js/saju-analysis.js?v=1.0"></script>
+  <script src="../js/oheng-story.js?v=1.5"></script>
+  <script src="../js/zodiac-compat.js?v=1.5"></script>
+  <script src="../js/site.js?v=4.4"></script>
   <style>
     :root {
       --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff;
@@ -75,6 +76,11 @@
         <div id="story"></div>
         <p class="meta" id="meta"></p>
       </div>
+      <div class="card" id="struct-card" style="display:none">
+        <div class="sec">📐 신강·용신</div>
+        <p class="block" id="struct-blurb"></p>
+        <p class="meta"><a href="full-saju.html" style="color:var(--primary);font-weight:700;text-decoration:none">풀사주에서 자세히 →</a></p>
+      </div>
       <div class="card" id="animal-card" style="display:none">
         <div class="sec">🐉 띠 기운도 함께</div>
         <div id="animal"></div>
@@ -120,6 +126,17 @@
       document.getElementById('meta').textContent =
         (v.calendar === 'lunar' ? '음력 ' : '양력 ') + v.date.replace(/-/g, '.') +
         ' → 양력 ' + v.solar.replace(/-/g, '.') + ' · ' + year.animal + '띠';
+
+      var full = SE.getFullSaju(v.solar);
+      var A = window.SajuAnalysis && window.SajuAnalysis.analyze(full);
+      if (A) {
+        document.getElementById('struct-card').style.display = 'block';
+        document.getElementById('struct-blurb').textContent =
+          A.strength.labelKo + ' · ' + A.geokguk.short + ' · 용신 「' +
+          window.SajuAnalysis.EL_KO[A.yongsin.yong] + '」. ' + A.strength.plain;
+      } else {
+        document.getElementById('struct-card').style.display = 'none';
+      }
 
       var ar = ZC.getAnimalProfileReading(year.animal);
       if (ar) {
