@@ -25,13 +25,13 @@
     {
       id: 'today',
       title: '오늘의 운세·로또',
-      desc: '생활 운세 · 로또',
+      desc: '생활 운세 · 추천 번호',
       href: 'tools/today.html',
       emoji: '🎱',
-      tag: '매일',
+      tag: '로또',
       nav: null,
       public: true,
-      hub: false,
+      hub: true,
       group: 'today'
     },
     {
