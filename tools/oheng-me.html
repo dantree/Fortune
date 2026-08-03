@@ -17,7 +17,8 @@
   <script src="../js/saju-analysis.js?v=1.0"></script>
   <script src="../js/oheng-story.js?v=1.5"></script>
   <script src="../js/zodiac-compat.js?v=1.5"></script>
-  <script src="../js/site.js?v=4.4"></script>
+  <script src="../config.js?v=4.6"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root {
       --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff;
@@ -81,6 +82,7 @@
         <p class="block" id="struct-blurb"></p>
         <p class="meta"><a href="full-saju.html" style="color:var(--primary);font-weight:700;text-decoration:none">풀사주에서 자세히 →</a></p>
       </div>
+      <div id="consult-result"></div>
       <div class="card" id="animal-card" style="display:none">
         <div class="sec">🐉 띠 기운도 함께</div>
         <div id="animal"></div>
@@ -150,6 +152,9 @@
       }
 
       document.getElementById('result').classList.add('show');
+      if (window.SiteNav && window.SiteNav.mountConsult) {
+        window.SiteNav.mountConsult('consult-result', 'result');
+      }
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 

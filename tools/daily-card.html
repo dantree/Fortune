@@ -10,10 +10,10 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon-180.png?v=1">
   <meta name="theme-color" content="#6b4eff">
   <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
-  <script src="../config.js?v=4.2"></script>
+  <script src="../config.js?v=4.6"></script>
   <script src="../js/solar-terms.js?v=4.2"></script>
   <script src="../js/saju-engine.js?v=4.2"></script>
-  <script src="../js/site.js?v=4.3"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -67,12 +67,14 @@
       <a class="btn ghost" href="today.html">운세도 보기</a>
     </div>
     <div class="toast" id="toast"></div>
+    <div id="consult-result"></div>
     <p class="trust">같은 입력 = 같은 결과 · KARI 절입 만세력</p>
     <canvas id="share-canvas" width="1080" height="1920"></canvas>
   </div>
   <script>
   (function () {
     window.SiteNav.mount('card');
+    if (window.SiteNav.mountConsult) window.SiteNav.mountConsult('consult-result', 'result');
     var SE = window.SajuEngine;
     var today = SE.todayDateStr();
     var day = SE.getDayPillar(today);

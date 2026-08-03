@@ -10,14 +10,14 @@
   <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon-180.png?v=1">
   <meta name="theme-color" content="#6b4eff">
   <meta property="og:image" content="https://saju.kaltaelee.com/img/og-image.png">
-  <script src="../config.js"></script>
+  <script src="../config.js?v=4.6"></script>
   <script src="../js/vendor/korean-lunar-calendar.min.js"></script>
   <script src="../js/birth-date.js"></script>
   <script src="../js/solar-terms.js?v=1.5"></script>
   <script src="../js/saju-engine.js?v=1.5"></script>
   <script src="../js/saju-analysis.js?v=1.0"></script>
   <script src="../js/ilju-story.js"></script>
-  <script src="../js/site.js?v=4.4"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root {
       --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
@@ -125,6 +125,7 @@
         <p class="story" id="struct-blurb"></p>
         <p class="hint" style="margin-top:8px"><a href="full-saju.html" style="color:var(--primary);font-weight:700;text-decoration:none">풀사주에서 용신·격국 자세히 →</a></p>
       </div>
+      <div id="consult-result" style="margin:12px 0"></div>
 
       <div class="card">
         <div class="sec-title">💬 사람들이 제일 궁금해하는 것</div>
@@ -262,6 +263,9 @@
 
       try { BD.saveBirth(v); } catch (e) {}
       document.getElementById('result').classList.add('show');
+      if (window.SiteNav && window.SiteNav.mountConsult) {
+        window.SiteNav.mountConsult('consult-result', 'result');
+      }
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 

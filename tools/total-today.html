@@ -18,7 +18,8 @@
   <script src="../js/star-sign.js?v=1.4"></script>
   <script src="../js/oheng-story.js?v=1.4"></script>
   <script src="../js/total-fortune.js?v=1.4"></script>
-  <script src="../js/site.js?v=1.4"></script>
+  <script src="../config.js?v=4.6"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root { --bg:#f5f3ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
     * { box-sizing:border-box; margin:0; padding:0; }
@@ -86,6 +87,7 @@
         <a href="ddi-compat.html">🐉 띠 궁합</a>
         <a href="today.html">🎱 운세 · 로또</a>
       </div>
+      <div id="consult-result"></div>
     </div>
   </div>
   <script>
@@ -134,6 +136,9 @@
         layerHtml(t.layers.oheng);
 
       document.getElementById('result').classList.add('show');
+      if (window.SiteNav && window.SiteNav.mountConsult) {
+        window.SiteNav.mountConsult('consult-result', 'result');
+      }
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     document.getElementById('btn').addEventListener('click', show);

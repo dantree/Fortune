@@ -11,6 +11,9 @@ window.FORTUNE_CONFIG = {
   // 블로그스팟 주소 → 결과 화면 "더 깊은 해설" 링크
   blogUrl: 'https://kaltaelee.com',
 
+  // 카카오 오픈채팅 (1:1 사주 상담)
+  kakaoOpenChat: 'https://open.kakao.com/o/sOGOK2Gi',
+
   // AdSense
   adsense: {
     enabled: true,

@@ -18,7 +18,8 @@
   <script src="../js/saju-engine.js?v=3.2"></script>
   <script src="../js/saju-analysis.js?v=1.0"></script>
   <script src="../js/saju-guide.js?v=3.2"></script>
-  <script src="../js/site.js?v=4.4"></script>
+  <script src="../config.js?v=4.6"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; --up:#0d9488; --down:#c2410c; }
     * { box-sizing:border-box; margin:0; padding:0; }
@@ -138,6 +139,7 @@
         <a href="total-today.html">☀️ 오늘의 총운</a>
         <a href="daily-card.html">🃏 오늘의 카드</a>
       </div>
+      <div id="consult-result"></div>
       <p class="note" id="r-disc"></p>
     </div>
   </div>
@@ -244,6 +246,9 @@
       document.getElementById('r-disc').textContent = r.disclaimer;
 
       document.getElementById('result').classList.add('show');
+      if (window.SiteNav && window.SiteNav.mountConsult) {
+        window.SiteNav.mountConsult('consult-result', 'result');
+      }
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 

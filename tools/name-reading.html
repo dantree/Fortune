@@ -16,7 +16,8 @@
   <script src="../js/saju-engine.js?v=3.2"></script>
   <script src="../js/saju-analysis.js?v=1.0"></script>
   <script src="../js/birth-date.js?v=3.2"></script>
-  <script src="../js/site.js?v=4.4"></script>
+  <script src="../config.js?v=4.6"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root { --bg:#f3f0ff; --text:#1a1a2e; --muted:#6b7280; --primary:#6b4eff; }
     * { box-sizing:border-box; margin:0; padding:0; }
@@ -103,6 +104,7 @@
       <div class="block"><span class="l">글자별</span><span id="r-parts"></span></div>
       <p class="note" id="r-disc"></p>
       <p class="note" id="r-yong" style="display:none;margin-top:8px"></p>
+      <div id="consult-result"></div>
       <p style="margin-top:12px;font-size:13px">
         <a href="full-saju.html" style="color:var(--primary);font-weight:700;text-decoration:none">📖 사주 용신과 이름 맞춰 보기 →</a>
       </p>
@@ -159,6 +161,9 @@
           }
         }
       } catch (e) {}
+      if (window.SiteNav && window.SiteNav.mountConsult) {
+        window.SiteNav.mountConsult('consult-result', 'result');
+      }
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 

@@ -20,7 +20,8 @@
   <script src="../js/zodiac-compat.js?v=3.2"></script>
   <script src="../js/star-sign.js?v=3.2"></script>
   <script src="../js/total-fortune.js?v=3.2"></script>
-  <script src="../js/site.js?v=4.4"></script>
+  <script src="../config.js?v=4.6"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root {
       --bg: #f3f1fb;
@@ -233,6 +234,7 @@
       </div>
 
       <a class="btn link-btn" href="total-today.html">오늘의 총운으로 이어보기</a>
+      <div id="consult-result"></div>
       <p class="meta" id="disc" style="margin-top:14px"></p>
     </div>
   </div>
@@ -466,6 +468,9 @@
         document.getElementById('more-box').style.display = hasMore ? 'block' : 'none';
 
         document.getElementById('result').classList.add('show');
+        if (window.SiteNav && window.SiteNav.mountConsult) {
+          window.SiteNav.mountConsult('consult-result', 'result');
+        }
         document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
       } catch (err) {
         console.error(err);

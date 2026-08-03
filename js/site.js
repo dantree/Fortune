@@ -214,12 +214,81 @@
       '.site-bottom a{flex:1;text-align:center;text-decoration:none;color:#6b7280;',
       'font-size:11px;font-weight:600;padding:8px 4px;border-radius:10px;}',
       '.site-bottom a.active{color:#6b4eff;background:#ede9fe;}',
-      'body.has-site-nav{padding-bottom:72px;}'
+      'body.has-site-nav{padding-bottom:72px;}',
+      '.consult-cta{display:block;margin:12px 0;padding:15px 16px 14px;border-radius:14px;',
+      'background:#fff;color:#1a1a2e;box-shadow:0 4px 18px rgba(107,78,255,.1);',
+      'text-decoration:none;border:1px solid #e9e5ff;}',
+      '.consult-cta .eyebrow{font-size:11px;font-weight:800;color:#6b4eff;letter-spacing:.03em;margin-bottom:6px;}',
+      '.consult-cta .line{font-size:15px;font-weight:800;line-height:1.5;letter-spacing:-0.02em;margin:0 0 12px;color:#1a1a2e;}',
+      '.consult-cta .go{display:inline-block;font-size:13px;font-weight:850;padding:10px 14px;border-radius:999px;',
+      'background:#6b4eff;color:#fff;}'
     ].join('');
     var style = global.document.createElement('style');
     style.id = 'site-nav-styles';
     style.textContent = css;
     global.document.head.appendChild(style);
+  }
+
+  function consultUrl() {
+    var cfg = global.FORTUNE_CONFIG || {};
+    return cfg.kakaoOpenChat || 'https://open.kakao.com/o/sOGOK2Gi';
+  }
+
+  /**
+   * 카톡 1:1 상담 CTA
+   * @param {string|Element} target
+   * @param {'home'|'result'} variant
+   */
+  function mountConsult(target, variant) {
+    injectStyles();
+    var url = consultUrl();
+    if (!url) return;
+    var el = typeof target === 'string'
+      ? global.document.getElementById(target.replace(/^#/, ''))
+      : target;
+    if (!el) return;
+
+    var copy = variant === 'result'
+      ? {
+        eyebrow: '운명 · 사주, 그다음 한 줄',
+        line: '점수는 힌트일 뿐이에요. 내 사주 안에서 「그래서 나는 어떻게 판단하면 되지?」가 남았다면, 그 한 줄만 카톡으로 보내주세요.',
+        go: '카톡으로 직접 상담받기'
+      }
+      : {
+        eyebrow: '운명 × 사주 1:1',
+        line: '사주로 내 운명의 결을 알면, 같은 상황에서도 더 맞는 판단을 하며 살아갈 수 있어요. 지금 마음에 걸린 그 한 가지만 카톡으로 보내주세요.',
+        go: '1:1 사주 상담 열기'
+      };
+
+    var wrap = global.document.createElement('a');
+    wrap.className = 'consult-cta';
+    wrap.href = url;
+    wrap.target = '_blank';
+    wrap.rel = 'noopener noreferrer';
+    wrap.innerHTML =
+      '<div class="eyebrow">' + copy.eyebrow + '</div>' +
+      '<p class="line">' + copy.line + '</p>' +
+      '<span class="go">' + copy.go + ' →</span>';
+
+    if (el.id === 'consult-home' || el.id === 'consult-result' || /^consult-/.test(el.id || '')) {
+      el.innerHTML = '';
+      el.appendChild(wrap);
+      el.style.display = 'block';
+      return;
+    }
+    var slot = el.querySelector('#consult-result');
+    if (slot) {
+      slot.innerHTML = '';
+      slot.appendChild(wrap);
+      slot.style.display = 'block';
+      return;
+    }
+    var existing = el.querySelector('.consult-cta');
+    if (existing) {
+      existing.replaceWith(wrap);
+      return;
+    }
+    el.appendChild(wrap);
   }
 
   function renderTop(activeId) {
@@ -283,6 +352,9 @@
     renderTop(activeId || 'home');
     renderBottom(activeId || 'home');
     if (activeId === 'home') renderHub();
+    if (global.document.getElementById('consult-home')) {
+      mountConsult('consult-home', 'home');
+    }
   }
 
   global.SiteNav = {
@@ -291,6 +363,8 @@
     GROUPS: GROUPS,
     publicTools: publicTools,
     resolveHref: resolveHref,
+    consultUrl: consultUrl,
+    mountConsult: mountConsult,
     mount: mount,
     renderHub: renderHub,
     renderTop: renderTop,

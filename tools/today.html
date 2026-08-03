@@ -14,7 +14,8 @@
   <script src="../js/birth-date.js"></script>
   <script src="../js/solar-terms.js?v=1.4"></script>
   <script src="../js/saju-engine.js?v=1.4"></script>
-  <script src="../js/site.js"></script>
+  <script src="../config.js?v=4.6"></script>
+  <script src="../js/site.js?v=4.8"></script>
   <style>
     :root {
       --bg: #f5f3ff; --surface: #fff; --text: #1a1a2e; --muted: #6b7280;
@@ -107,6 +108,7 @@
         <div class="summary" id="f-summary"></div>
         <div id="f-areas"></div>
         <div class="meta" id="f-meta"></div>
+        <div id="consult-fortune"></div>
       </div>
     </div>
 
@@ -129,6 +131,7 @@
         <div class="sec-title">✨ 번호별 한 줄</div>
         <div id="lotto-notes"></div>
         <div class="disclaimer" id="lotto-disc"></div>
+        <div id="consult-result"></div>
       </div>
     </div>
   </div>
@@ -189,6 +192,9 @@
         '<span class="chip">' + f.luckyItem + '</span>' +
         '<span class="chip">포인트 ' + f.luckyNumber + '</span>';
       document.getElementById('fortune-result').classList.remove('hidden');
+      if (window.SiteNav && window.SiteNav.mountConsult) {
+        window.SiteNav.mountConsult('consult-fortune', 'result');
+      }
     }
 
     function showLotto() {
@@ -217,6 +223,9 @@
       }).join('');
       document.getElementById('lotto-disc').textContent = L.disclaimer;
       document.getElementById('lotto-result').classList.remove('hidden');
+      if (window.SiteNav && window.SiteNav.mountConsult) {
+        window.SiteNav.mountConsult('consult-result', 'result');
+      }
     }
 
     document.getElementById('btn-fortune').addEventListener('click', showFortune);
